@@ -1,0 +1,124 @@
+@using System.Globalization;
+@model BackOfficeLibrary.DonateSettingViewwModel
+
+@{
+    var _cultureEN = new CultureInfo("th-TH");
+}
+
+<div id="CreateDonateSettingsOffcanvas" class="offcanvas offcanvas-info offcanvas-end mobile-offcanvas"
+    tabindex="-1">
+
+    <div class="offcanvas-body">
+
+        <div class="row mb-3">
+            <div class="col-7">
+                <h4 class="offcanvas-title">สร้างข้อมูลการบริจาค</h4>
+            </div>
+            <div class="col-5 text-end">
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+        </div>
+
+        <form id="DonateSettingsForm" asp-controller="DonateSettings" asp-action="Create" method="post"
+            enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>@localize["Year"]</label>
+                        <select id="SchoolYear" asp-for="SchoolYear_Id" class="form-control select2"
+                            asp-items="ViewBag.SchoolYearList" required>
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>@localize["Term"]</label>
+                        <select id="Term_Select" asp-for="Term_Id" class="form-control select2" disabled required>
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>@localize["Grade_Level"]</label>
+                        <select id="Grade_Level_Id" asp-for="Grade_Level_Id" class="form-control select2" disabled
+                            required>
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>@localize["Amount"]</label>
+                        <input id="Amount" type="number" asp-for="Donate" class="form-control" disabled required>
+                    </div>
+                </div>
+                <div class="offcanvas-footer border-top p-3 text-end">
+                    <button type="submit" class="btn btn-primary m-1">
+                        @localize["Save"]
+                    </button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+<div class="urlDefualt" data-request-url="@Url.Action("", "DonateSettings")"></div>
+<div class="urlGetTerms" data-request-url="@Url.Action("GetTerms", "DonateSettings")"></div>
+
+
+    <script type="text/javascript">
+            $("#SchoolYear").change(function () {
+                var schoolYearId = $(this).val();
+                var selectText = "@localize["Select"]";
+                console.log("School",schoolYearId);
+                if (!schoolYearId) {
+                    $("#Term_Select").html(`<option value="">${selectText}</option>`).prop("disabled", true);
+                    $("#Grade_Level_Id").html(`<option value="">${selectText}</option>`).prop("disabled", true);
+                    return;
+                }
+
+                let url = $(".urlGetTerms").data("request-url") + "?schoolYearId=" + schoolYearId;
+
+                $.get(url, function (data) {
+                    if (data.status == 200) {
+                        let termOptions = `<option value="">${selectText}</option>`;
+                        $.each(data.termsList, function (i, item) {
+                            termOptions += `<option value="${item.value}">${item.text}</option>`;
+                        });
+                        $("#Term_Select").html(termOptions).prop("disabled", false);
+
+                        // GradeLevel ยังไม่เปิดให้เลือก
+                        $("#Grade_Level_Id").html(`<option value="">${selectText}</option>`).prop("disabled", true);
+                    }
+                });
+            });
+
+            $("#Term_Select").change(function () {
+                var schoolYearId = $("#SchoolYear").val();
+                var termId = $(this).val();
+                var selectText = "@localize["Select"]";
+
+                if (!termId) {
+                    $("#Grade_Level_Id").html(`<option value="">${selectText}</option>`).prop("disabled", true);
+                    return;
+                }
+
+                let url = $(".urlDefualt").data("request-url") + "/GetGradeLevelForDonate?schoolYearId=" + schoolYearId + "&termId=" + termId;
+
+                $.get(url, function (data) {
+                    if (data.status == 200) {
+                        let gradeOptions = `<option value="">${selectText}</option>`;
+                        $.each(data.gradeList, function (i, item) {
+                            gradeOptions += `<option value="${item.value}">${item.text}</option>`;
+                        });
+                        $("#Grade_Level_Id").html(gradeOptions).prop("disabled", false);
+                        $("#Amount").prop("disabled", false);
+                    }
+                });
+            });
+    </script>
+    <script src="~/js/donate/_settings.js" asp-append-version="true"></script>

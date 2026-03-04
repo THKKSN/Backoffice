@@ -1,0 +1,41 @@
+@using System.Globalization;
+
+@{
+    var _cultureEN = new CultureInfo("th-TH");
+}
+<div class="row text-center">
+    <!-- TERM 1 -->
+    <div class="col-md-6">
+        <h6 class="fw-bold mb-2">@localize["Term"] 1</h6>
+
+        <div class="position-relative mx-auto" style="width:180px">
+            <canvas id="term1Chart"></canvas>
+        </div>
+
+        <div id="term1Text" class="fw-semibold mt-2">
+            ยังไม่บริจาค 0 / 0 คน
+        </div>
+        <div id="term1Amount" class="text-muted small">
+            บริจาคแล้ว 0 / 0 @localize["THB"]
+        </div>
+    </div>
+    <div class="col-md-6">
+    
+    </div>
+
+    <!-- TERM 2 -->
+    <div class="col-md-6 mt-1">
+        <h6 class="fw-bold mb-2">@localize["Term"] 2</h6>
+
+        <div class="position-relative mx-auto" style="width:180px">
+            <canvas id="term2Chart"></canvas>
+        </div>
+
+        <div id="term2Text" class="fw-semibold mt-2">
+            ยังไม่บริจาค 0 / 0 คน
+        </div>
+        <div id="term2Amount" class="text-muted small">
+            บริจาคแล้ว 0 / 0 @localize["THB"]
+        </div>
+    </div>
+</div>

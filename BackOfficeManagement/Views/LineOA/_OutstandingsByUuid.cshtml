@@ -1,0 +1,25 @@
+@model List<BackOfficeLibrary.OutstandingDonationViewModel>
+
+<div class="mt-2">
+    @foreach (var o in Model)
+    {
+        decimal diff = o.TotalAmount - o.DonateAmount;
+        bool complete = diff <= 0;
+
+        <div class="border rounded p-2 mb-2 
+                     @(complete ? "border-success bg-success bg-opacity-10" : "border-danger bg-danger bg-opacity-10")">
+
+            <div class="fw-bold fs-6">
+                เทอม @o.Term
+            </div>
+
+            <div class="mt-1">
+                ต้องชำระ: @o.TotalAmount.ToString("N0") บาท
+            </div>
+
+            <div class="">
+                ชำระแล้ว: @o.DonateAmount.ToString("N0") บาท
+            </div>
+        </div>
+    }
+</div>

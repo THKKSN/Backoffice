@@ -1,0 +1,126 @@
+﻿@model BackOfficeLibrary.LoginViewModel
+@inject IStringLocalizer<SharedResource> localize
+
+<style>
+    body {
+        background-color: #f4f6f9;
+    }
+
+    .login-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-card {
+        border-radius: 8px;
+        border: none;
+    }
+
+    .login-title {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #1f3c88;
+    }
+
+    .btn-admin {
+        background-color: #1f3c88;
+        color: #fff;
+    }
+
+    .btn-admin:hover {
+        background-color: #162d66;
+        color: #fff;
+    }
+
+    .admin-logo {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1f3c88;
+    }
+</style>
+
+<section class="login-wrapper">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-md-8 col-lg-4">
+
+                <form asp-area="Identity" asp-controller="Account" asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="card login-card shadow">
+                        <div class="card-body p-4">
+
+                            <div class="text-center mb-4">
+                                <div class="admin-logo">Admin Panel</div>
+                                <div class="text-muted small">Secure Back Office Access</div>
+                            </div>
+
+                            <div class="mb-3 text-start">
+                                <label class="form-label">@localize["Account"]</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                    <input class="form-control input-login"
+                                        asp-for="UserName" name="UserName"
+                                        placeholder="@localize["Username"] @localize["Or"] @localize["email_address"]">
+
+                                </div>
+                            </div>
+
+                            <div class="mb-3 text-start">
+                                <label class="form-label">@localize["Password"]</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white">
+                                        <span id="IconPassword" class="fas fa-lock" onclick="ShowPassword();"></span>
+                                    </span>
+                                    <input asp-for="Password" name="Password" class="form-control" type="password" placeholder="@localize["Password"]">
+                                </div>
+
+                                <div class="mt-2 text-end">
+                                    <button type="button" class="btn btn-link p-0 small">
+                                        @localize["Forgot"]?
+                                    </button>
+                                </div>
+                            </div>
+
+                            @if (ViewBag.MessageLoginFailed == "Failed")
+                            {
+                                <div class="alert alert-danger text-center py-2 mb-3">
+                                    @localize["txtLoginFailed"]
+                                </div>
+                            }
+
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3 text-center"></div>
+
+                            <div class="d-grid mt-3">
+                                <button type="submit" class="btn btn-admin">
+                                    @localize["Login"]
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-3 text-muted small">
+                        © @DateTime.Now.Year Back Office System
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/identity/account/_login.js" asp-append-version="true"></script>
+}

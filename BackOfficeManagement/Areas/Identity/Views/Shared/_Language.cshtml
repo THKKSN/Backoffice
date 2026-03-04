@@ -1,0 +1,42 @@
+﻿@using System.Globalization;
+
+@{
+    //Switcher language
+    var returnUrl = @Url.Action("Login", "Account");
+    var culture = CultureInfo.CurrentUICulture;
+    var currentFlag = string.Empty;
+    var itemClassEN = string.Empty;
+    var itemClassTH = string.Empty;
+
+    switch (culture.Name)
+    {
+        case "en-US":
+            currentFlag = "flag-icon-us";
+            itemClassEN = "active";
+            break;
+        case "th-TH":
+            currentFlag = "flag-icon-th";
+            itemClassTH = "active";
+            break;
+        default:
+            currentFlag = "flag-icon-us";
+            itemClassEN = "active";
+            break;
+    }
+}
+
+<button>AAA</button>
+
+<button id="btnSwitchLang" class="btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+    <i class="currentflag flag-icon @currentFlag"></i>
+</button>
+<div class="dropdown-menu dropdown-menu-right p-0" aria-labelledby="btnSwitchLang">
+    <a class="dropdown-item @itemClassEN"
+       href="@Url.Action("Language", "Account", new { languageCode = "en-US", returnUrl = @returnUrl })">
+        <i class="flag-icon flag-icon-us mr2"></i> English
+    </a>
+    <a class="dropdown-item @itemClassTH"
+       href="@Url.Action("Language", "Account", new { languageCode = "th-TH", returnUrl = @returnUrl })">
+        <i class="flag-icon flag-icon-th mr2"></i> ภาษาไทย
+    </a>
+</div>

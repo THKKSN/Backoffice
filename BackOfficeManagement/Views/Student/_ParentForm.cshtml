@@ -1,0 +1,102 @@
+@model BackOfficeLibrary.ParentContactViewModel
+@{
+    var idx = ViewData["index"];
+}
+
+<div class="parent-block mb-4">
+    <input type="hidden" asp-for="Id" />
+    <div class="row">
+        <div class="col-lg-2">
+            <div class="form-group">
+                <label>@localize["Prefix"]</label>
+                <select class="form-control select2" asp-for="PrefixParent_Id"
+                    asp-items="@(new SelectList(ViewBag.parentPrefixList, "Value", "Text"))">
+                    <option value="">@localize["Select"]</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="form-group">
+                <label>@localize["FirstName"]</label>
+                <input class="form-control" asp-for="ContactFirstName" />
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="form-group">
+                <label>@localize["LastName"]</label>
+                <input class="form-control" asp-for="ContactLastName" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="form-group">
+                <label>@localize["IDCard"]</label>
+                <input class="form-control" asp-for="IDCard" />
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="form-group">
+                <label>อาชีพ</label>
+                <input class="form-control" asp-for="Occupation" />
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="form-group">
+                <label>@localize["Contact_Phone"]</label>
+                <input class="form-control" asp-for="ContactPhone" />
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="form-group">
+                <label>@localize["Date_Of_Birth"]</label>
+                <input class="form-control" asp-for="DateOfBirth" type="date" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-lg-3">
+            <div class="form-group">
+                <label>@localize["Relationship"]</label>
+                <select class="form-control select2" asp-for="Relationship_Id"
+                    asp-items="@(new SelectList(ViewBag.RelationshipList, "Value", "Text"))">
+                    <option value="">@localize["Select"]</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="form-group">
+                <label>@localize["Religion"]</label>
+                <select class="form-control select2" asp-for="Religion_Id"
+                    asp-items="@(new SelectList(ViewBag.ReligionList, "Value", "Text"))">
+                    <option value="">@localize["Select"]</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="form-group">
+                <label>@localize["Nationality"]</label>
+                <input class="form-control" type="text" asp-for="Nationality" />
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="form-group">
+                <label>@localize["Parent_Status"]</label>
+                <select class="form-control select2" asp-for="ParentStatus_Id"
+                    asp-items="@(new SelectList(ViewBag.ParentStatusList, "Value", "Text"))">
+                    <option value="">@localize["Select"]</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+</div>

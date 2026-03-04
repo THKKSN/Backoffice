@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["HeaderTitle"] = "Access Denied";
+    ViewData["txtTitle"] = "คุณไม่ได้รับอนุญาตให้ดูแหล่งข้อมูลนี้!";
+}
+
+<section>
+    <div class="text-center">
+        <h1 class="text-danger">
+            @ViewData["HeaderTitle"]
+        </h1>
+        <h6 class="text-danger">
+            @ViewData["txtTitle"]
+        </h6>
+    </div>
+</section>

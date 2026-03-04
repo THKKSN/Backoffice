@@ -1,0 +1,309 @@
+@using System.Globalization;
+@model BackOfficeLibrary.StudentDTOModel
+
+@{
+    var _cultureEN = new CultureInfo("th-TH");
+}
+
+<div id="UpgradeStudent" class="offcanvas offcanvas-info offcanvas-end mobile-offcanvas" tabindex="-1"
+    aria-labelledby="UpgradeStudentLabel">
+
+    <div class="offcanvas-body">
+
+        <div class="row mb-3">
+            <div class="col-7">
+                <h4 id="UpgradeStudentLabel" class="offcanvas-title">@localize["Upgrade_Student"]</h4>
+            </div>
+            <div class="col-5 text-end">
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+
+            <form id="UpgradeStudentForm" asp-controller="Student" asp-action="UpgradeStudent" method="post"
+                enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-4">
+                        <label>@localize["Grade_Level"]</label>
+                        <select id="GradeLevel_Id_UpGrade" class="form-control select2" asp-for="GradeLevel_Id"
+                            asp-items="@(new SelectList(ViewBag.GrandLevelList, "Value", "Text"))"
+                            data-request-url-base="@Url.Action("", "Student")">
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <table class="table table-bordered mt-3" id="studentTable">
+                        <thead>
+                            <tr>
+                                <th width="15%">
+                                    <input type="checkbox" id="selectAllUpgrade" /> @localize["Select_All"]
+                                </th>
+                                <th width="20%">@localize["Student_Id"]</th>
+                                <th width="35%">@localize["FullName"]</th>
+                                <th width="10%">@localize["Room"]</th>
+                                <th class="text-center">@localize["Status"]</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+
+                </div>
+
+                <div class="row my-3">
+                    <h5>ปรับชั้นเรียน</h5>
+                    <div class="col-6">
+                        <label>@localize["Year"]</label>
+                        <select id="NewSchoolYear_Id" class="form-control select2" asp-for="School_Year_Id"
+                            asp-items="@(new SelectList(ViewBag.SchoolYearList, "Value", "Text"))"
+                            data-request-url-base="@Url.Action("", "Student")" required>
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label>@localize["Term"]</label>
+                        <select id="NewTerm_Id" class="form-control select2" asp-for="Term_Id"
+                            asp-items="@(new SelectList(ViewBag.TermList, "Value", "Text"))"
+                            data-request-url-base="@Url.Action("", "Student")" required>
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label>@localize["Grade_Level"]</label>
+                        <select id="NewGradeLevel_Id" class="form-control select2" asp-for="NewGradeLevel_Id"
+                            asp-items="@(new SelectList(ViewBag.GrandLevelList, "Value", "Text"))"
+                            data-request-url-base="@Url.Action("", "Student")" required>
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label>@localize["Room"]</label>
+                        <select id="NewRoom_Id" class="form-control select2" asp-for="Room_Id" required>
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="offcanvas-footer border-top p-3 text-end">
+                    <button type="button" id="btnUpgrade" class="btn btn-success">
+                        <i class="fa fa-arrow-up me-2"></i> Upgrade
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="urlDefualt" data-request-url="@Url.Action("", "Student")"></div>
+
+<script>
+    $(function () {
+        $('#UpgradeStudent').find('select.select2').each(function () {
+            // ถ้า select2 ถูก init อยู่แล้ว ให้ destroy ก่อน
+            if ($(this).data('select2')) {
+                $(this).select2('destroy');
+            }
+            // init ใหม่
+            $(this).select2({
+                width: "100%",
+                dropdownParent: $(this).parent(),
+            });
+        });
+        let studentTable;
+
+        $('#GradeLevel_Id_UpGrade').on('change', function () {
+
+            let gradeId = $(this).val();
+            if (!gradeId) return;
+
+            let baseUrl = $('#urlDefualt').data('request-url');
+
+            // ถ้ามี DataTable อยู่แล้ว → destroy ก่อน
+            if ($.fn.DataTable.isDataTable('#studentTable')) {
+                studentTable.clear().destroy();
+                $('#studentTable tbody').empty();
+            }
+
+            studentTable = $('#studentTable').DataTable({
+                processing: true,
+                searching: false,
+                paging: true,
+                ordering: true,
+                order: [
+                    [3, 'asc'],
+                    [1, 'asc']
+                ],
+                ajax: {
+                    url: baseUrl + '/GetStudentsByGrade',
+                    type: 'GET',
+                    data: {
+                        gradeLevelId: gradeId
+                    },
+                    dataSrc: ''
+                },
+                columns: [
+                    {
+                        data: 'studentId',
+                        orderable: false,
+                        className: 'text-center',
+                        render: function (data) {
+                            return `
+                    <input type="checkbox"
+                           class="student-checkbox"
+                           value="${data}">
+                `;
+                        }
+                    },
+                    {
+                        data: 'code',
+                        className: 'text-center',
+                    },
+                    { data: 'fullName' },
+                    {
+                        data: 'roomName',
+                        className: 'text-center',
+                    },
+                    {
+                        data: null,
+                        className: 'text-center',
+                        render: function (data) {
+                            let statusClass = `status-${data.studentStatusId}`;
+                            return `
+                    <span class="badge rounded-pill px-3 py-2 ${statusClass}">
+                        ${data.statusName}
+                    </span>
+                `;
+                        }
+                    }
+                ],
+                drawCallback: function () {
+                    $('#selectAllUpgrade').prop('checked', false);
+                },
+                language: {
+                    emptyTable: "ไม่พบนักเรียนในชั้นปีนี้"
+                }
+            });
+
+        });
+
+        $('#selectAllUpgrade').on('change', function () {
+            let isChecked = this.checked;
+            $('.student-checkbox', studentTable.rows().nodes())
+                .prop('checked', isChecked);
+        });
+
+
+        $('#btnUpgrade').on('click', function () {
+
+            let studentIds = $('.student-checkbox:checked')
+                .map(function () { return this.value; })
+                .get();
+
+            if (studentIds.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'แจ้งเตือน',
+                    text: 'กรุณาเลือกนักเรียนอย่างน้อย 1 คน',
+                });
+                return;
+            }
+
+            let payload = {
+                StudentIds: studentIds,
+                New_SchoolYear_Id: $('#NewSchoolYear_Id').val(),
+                NewTerm_Id: $('#NewTerm_Id').val(),
+                NewGradeLevel_Id: $('#NewGradeLevel_Id').val(),
+                NewRoom_Id: $('#NewRoom_Id').val()
+            };
+
+
+            // 👉 SweetAlert2: ถามยืนยัน
+            Swal.fire({
+                title: 'ยืนยันการทำรายการ',
+                text: 'คุณต้องการยืนยันการอัปเกรดข้อมูลนักเรียนใช่หรือไม่ ?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'ยืนยัน',
+                cancelButtonText: 'ยกเลิก',
+                reverseButtons: true
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        url: '/Student/UpgradeStudents',
+                        type: 'POST',
+                        data: JSON.stringify(payload),
+                        contentType: 'application/json',
+                        success: function () {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'สำเร็จ',
+                                text: 'เลื่อนชั้นให้นักเรียนเรียบร้อยแล้ว',
+                            }).then(() => {
+
+                                const offcanvasEl = document.getElementById('UpgradeStudent');
+                                const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl);
+                                offcanvas.hide();
+
+                                location.reload();
+                            });
+                        },
+                        error: function () {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'เกิดข้อผิดพลาด',
+                                text: 'ไม่สามารถอัปเกรดข้อมูลได้ กรุณาลองใหม่',
+                            });
+                        }
+                    });
+
+                }
+                // ถ้ากด cancel → ไม่ต้องทำอะไร
+            });
+        });
+
+        $("#NewGradeLevel_Id").change(function () {
+
+            var aaa = "@localize["Select"]";
+            var grade_level = $(this).val();
+
+            let url = $("#urlDefualt").data("request-url") + "/GetRoom?grade_level=" + grade_level;
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (data) {
+                    if (data.status == 200) {
+                        let options = '<option value="">' + aaa + '</option>';
+                        $.each(data.roomList, function (i, item) {
+                            options += `<option value="${item.value}">${item.text}</option>`;
+                        });
+                        $("#NewRoom_Id").html(options);
+                    }
+                }
+            });
+        });
+
+        $("#NewSchoolYear_Id").change(function () {
+
+            var aaa = "@localize["Select"]";
+            var schoolYearId = $(this).val();
+
+            let url = $("#urlDefualt").data("request-url") + "/GetTermsBySchoolYear?schoolYearId=" + schoolYearId;
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (data) {
+                    if (data.status == 200) {
+                        let options = '<option value="">' + aaa + '</option>';
+                        $.each(data.termsList, function (i, item) {
+                            options += `<option value="${item.value}">${item.text}</option>`;
+                        });
+                        $("#NewTerm_Id").html(options);
+                    }
+                }
+            });
+        });
+    });
+
+</script>

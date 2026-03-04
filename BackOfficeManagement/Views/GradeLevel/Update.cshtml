@@ -1,0 +1,279 @@
+@model BackOfficeLibrary.GradeLevelViewModel
+
+<style>
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 45px;
+        height: 22px;
+    }
+
+    .switch input {
+        display: none;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 22px;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked+.slider {
+        background-color: #4CAF50;
+    }
+
+    input:checked+.slider:before {
+        transform: translateX(22px);
+    }
+</style>
+
+<div id="UpdateGradeLevel" class="offcanvas offcanvas-info offcanvas-end mobile-offcanvas" tabindex="-1">
+    <div class="offcanvas-body">
+
+<div class="row">
+<div class="col-7">
+        <h4 class="mb-3">แก้ไขข้อมูลระดับชั้น @Model.Name</h4>
+        </div>
+
+        <div class="col-5 text-end">
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        </div>
+        <form asp-action="Update" method="post" id="update-form">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="Id" />
+
+            <div class="mb-3 row">
+                <label class="col-sm-2 col-form-label">ชื่อระดับชั้น</label>
+                <div class="col-sm-10">
+                    <input asp-for="Name" class="form-control" />
+                </div>
+            </div>
+            <table class="table table-bordered" id="room-table">
+                <thead>
+                    <tr>
+                        <th>@localize["Room"]</th>
+                        @* <th>&nbsp;</th> *@
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for (int i = 0; i < (Model.Rooms?.Count ?? 0); i++)
+                    {
+                        <!-- สำคัญ: ใส่ Rooms.index เพื่อช่วย model binder -->
+                        <input type="hidden" name="Rooms.index" value="@i" />
+
+                        <tr class="align-middle">
+                            <td>
+                                <input name="Rooms[@i].Name" class="form-control" style="width:200px;"
+                                    value="@Model.Rooms[i].Name" />
+                                <!-- id สำหรับบอกว่าเป็นรายการเดิม -->
+                                <input type="hidden" name="Rooms[@i].Id" value="@Model.Rooms[i].Id" />
+                            </td>
+
+                            @* <td class="text-center">
+                                <label class="switch">
+                                    <!-- NOTE: ไม่มี name, ไม่มี hidden -->
+                                    <input type="checkbox" class="room-toggle" data-id="@Model.Rooms[i].Id"
+                                        @(Model.Rooms[i].IsActive.GetValueOrDefault() ? "checked" : "") />
+                                    <span class="slider"></span>
+                                </label>
+                            </td> *@
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @* <button type="button" id="add-room-btn" class="btn btn-primary mb-3"><i
+                    class="bi bi-plus"></i>@localize["Add"]</button> *@
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success">@localize["Save"]</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="urlDefualt" data-request-url="@Url.Action("", "GradeLevel")"></div>
+<div id="urlToggleRoomStatus" data-request-url="@Url.Action("ToggleRoomStatus", "GradeLevel")"></div>
+
+@section Scripts {
+    <script>
+        (function () {
+            // เริ่มนับ index จากจำนวนรายการปัจจุบัน
+            let roomIndex = @((Model.Rooms?.Count ?? 0));
+
+            const tbody = document.querySelector("#room-table tbody");
+            const addBtn = document.getElementById("add-room-btn");
+            const form = document.getElementById("update-form");
+
+            // escape เพื่อความปลอดภัยเวลาแทรก value เป็น innerHTML
+            function escapeHtml(text) {
+                if (text === null || text === undefined) return "";
+                return text.toString()
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            // helper: สร้างแถวใหม่ (Id omitted => binder จะให้ 0)
+            function createRow(index, name = "", code = "", isActive = false, id = "") {
+                // hidden index input (สำคัญสำหรับ model binder)
+                const indexHidden = document.createElement("input");
+                indexHidden.type = "hidden";
+                indexHidden.name = "Rooms.index";
+                indexHidden.value = index;
+
+                const tr = document.createElement("tr");
+                tr.classList.add("align-middle");
+
+                // ให้ checkbox มี name "Rooms[index].IsActive" เพื่อให้ binder รับค่าได้เมื่อ submit
+                tr.innerHTML = `
+                <td>
+                  <input name="Rooms[${index}].Name" class="form-control" style="width:200px;" value="${escapeHtml(name)}" />
+                  ${id ? `<input type="hidden" name="Rooms[${index}].Id" value="${id}" />` : ""}
+                </td>
+                <td class="text-center">
+                  <input name="Rooms[${index}].Code" class="form-control" style="width:120px;" value="${escapeHtml(code)}" readonly />
+                </td>
+                <td class="text-center">
+                  <label class="switch">
+                    <input type="checkbox" name="Rooms[${index}].IsActive" class="room-toggle" data-id="${id || ''}" ${isActive ? "checked" : ""} />
+                    <span class="slider"></span>
+                  </label>
+                </td>
+            `;
+                tbody.appendChild(indexHidden);
+                tbody.appendChild(tr);
+            }
+
+            // bind add button
+            addBtn.addEventListener("click", function () {
+                createRow(roomIndex);
+                roomIndex++;
+            });
+
+            // ลบแถว (ปุ่มลบสามารถวางใน tr ถ้าต้องการ) — ถ้ามีปุ่ม .btn-remove-row
+            document.addEventListener("click", function (e) {
+                if (e.target && e.target.classList.contains("btn-remove-row")) {
+                    const tr = e.target.closest("tr");
+                    // ลบ hidden index ที่อยู่ก่อน tr ด้วย (ถ้ามี)
+                    const prev = tr.previousElementSibling;
+                    if (prev && prev.tagName.toLowerCase() === "input" && prev.name === "Rooms.index") {
+                        prev.remove();
+                    }
+                    tr.remove();
+                    // รีindex ก่อน submit (จะทำตอน submit)
+                }
+            });
+
+            // ก่อน submit: รีbuild ทั้งหมดให้เป็น index ต่อเนื่อง 0..n-1
+            form.addEventListener("submit", function (ev) {
+                // ไม่ preventDefault — เราต้องการให้ submit จริง ๆ หลัง rebuild
+                // เก็บข้อมูลปัจจุบัน
+                ev.preventDefault();
+
+                const rows = Array.from(tbody.querySelectorAll("tr"));
+                const items = rows.map((r) => {
+                    const nameInput = r.querySelector('input[name$=".Name"]');
+                    const idInput = r.querySelector('input[name$=".Id"]');
+                    const codeInput = r.querySelector('input[name$=".Code"]');
+                    const checkbox = r.querySelector('input[type="checkbox"]');
+
+                    return {
+                        id: idInput ? idInput.value : "",
+                        name: nameInput ? nameInput.value : "",
+                        code: codeInput ? codeInput.value : "",
+                        isActive: !!(checkbox && checkbox.checked)
+                    };
+                });
+
+                // ล้าง tbody แล้วสร้างใหม่ให้ index ต่อเนื่อง
+                tbody.innerHTML = "";
+                items.forEach((it, idx) => {
+                    createRow(idx, it.name, it.code, it.isActive, it.id);
+                });
+
+                // ปรับตัวแปรนับ
+                roomIndex = items.length;
+
+                // ส่ง form จริง (หลังสร้าง input ด้วยชื่อที่ถูกต้องแล้ว)
+                form.submit();
+            });
+
+            // AJAX toggle สำหรับเปลี่ยนสถานะทันที (สำหรับห้องที่มี Id เท่านั้น)
+            document.addEventListener("change", function (e) {
+                if (!e.target.matches(".room-toggle")) return;
+
+                const cb = e.target;
+                const roomId = cb.getAttribute("data-id");
+                const isActive = cb.checked;
+
+                // ถ้าเป็นรายการใหม่ (ไม่มี id) — อย่าเรียก API, ให้ save แบบ bulk แทน
+                if (!roomId) {
+                    console.log("new row - will be saved on bulk submit");
+                    return;
+                }
+
+                const toggleUrl = document.getElementById("urlToggleRoomStatus").dataset.requestUrl;
+                // อ่าน antiforgery token หากมีใน DOM
+                const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                const token = tokenInput ? tokenInput.value : null;
+
+                const data = new URLSearchParams();
+                data.append("id", roomId);
+                data.append("isActive", isActive);
+
+                fetch(toggleUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                        ...(token ? { "RequestVerificationToken": token } : {})
+                    },
+                    body: data.toString()
+                })
+                    .then(r => r.json())
+                    .then(resp => {
+                        console.log("toggle response:", resp);
+                        if (!resp || resp.success !== true) {
+                            alert(resp?.message || "ไม่สามารถบันทึกสถานะได้");
+                            cb.checked = !isActive; // rollback UI
+                        }
+                    })
+                    .catch(err => {
+                        console.error("toggle error:", err);
+                        alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+                        cb.checked = !isActive; // rollback UI
+                    });
+            });
+
+            // โยน console log ตอนโหลดเสร็จ (debug)
+            document.addEventListener("DOMContentLoaded", () => {
+                console.log("GradeLevel edit script loaded. initial roomIndex=", roomIndex);
+            });
+
+        })();
+    </script>
+    <script src="~/js/gradelevel/_gradelevel.js" asp-append-version="true"></script>
+}

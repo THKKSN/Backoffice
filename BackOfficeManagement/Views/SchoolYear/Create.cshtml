@@ -1,0 +1,50 @@
+@using System.Globalization;
+@model BackOfficeLibrary.SchoolYearViewModel
+
+@{
+    var _cultureEN = new CultureInfo("en-US");
+}
+
+<div id="CreateSchoolYear" class="offcanvas offcanvas-info offcanvas-end mobile-offcanvas" tabindex="-1"
+    aria-labelledby="CreateSchoolYearLabel">
+
+    <div class="offcanvas-body">
+
+        <div class="row mb-3">
+            <div class="col-7">
+                <h4 id="SchoolYearLabel" class="offcanvas-title">สร้างข้อมูลปีการศึกษา</h4>
+            </div>
+            <div class="col-5 text-end">
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            
+            <form id="SchoolYearForm" asp-controller="SchoolYear" asp-action="Create" method="post" enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="font-weight-normal">
+                            @localize["Year"]
+                        </label>
+                        <input type="text" class="form-control" asp-for="Name"/>
+                    </div>
+                </div>
+            </div>
+            <div class="offcanvas-footer border-top p-3 text-end">
+                <button type="submit" class="btn btn-primary m-1">
+                    @localize["Save"]
+                </button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/js/schoolyear/_schoolyear.js" asp-append-version="true"></script>
+}

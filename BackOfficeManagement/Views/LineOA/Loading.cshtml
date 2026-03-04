@@ -1,0 +1,204 @@
+﻿@using System.Globalization;
+@inject IStringLocalizer<SharedResource> localize
+
+@{
+    Layout = "_Layout";
+}
+
+<style>
+    /* Container */
+    #loading-screen {
+        height: 70vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 25px;
+        user-select: none;
+    }
+
+    /* Dots Animation */
+    .dots {
+        position: relative;
+        width: 90px;
+        height: 90px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .dots span {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: #0d6efd;
+        border-radius: 50%;
+        animation: loadingDots 1.2s linear infinite;
+        transform-origin: 45px;
+    }
+
+    .dots span:nth-child(1) {
+        transform: rotate(calc(24deg * 1)) translate(35px);
+        animation-delay: calc(0.05s * 1);
+    }
+
+    .dots span:nth-child(2) {
+        transform: rotate(calc(24deg * 2)) translate(35px);
+        animation-delay: calc(0.05s * 2);
+    }
+
+    .dots span:nth-child(3) {
+        transform: rotate(calc(24deg * 3)) translate(35px);
+        animation-delay: calc(0.05s * 3);
+    }
+
+    .dots span:nth-child(4) {
+        transform: rotate(calc(24deg * 4)) translate(35px);
+        animation-delay: calc(0.05s * 4);
+    }
+
+    .dots span:nth-child(5) {
+        transform: rotate(calc(24deg * 5)) translate(35px);
+        animation-delay: calc(0.05s * 5);
+    }
+
+    .dots span:nth-child(6) {
+        transform: rotate(calc(24deg * 6)) translate(35px);
+        animation-delay: calc(0.05s * 6);
+    }
+
+    .dots span:nth-child(7) {
+        transform: rotate(calc(24deg * 7)) translate(35px);
+        animation-delay: calc(0.05s * 7);
+    }
+
+    .dots span:nth-child(8) {
+        transform: rotate(calc(24deg * 8)) translate(35px);
+        animation-delay: calc(0.05s * 8);
+    }
+
+    .dots span:nth-child(9) {
+        transform: rotate(calc(24deg * 9)) translate(35px);
+        animation-delay: calc(0.05s * 9);
+    }
+
+    .dots span:nth-child(10) {
+        transform: rotate(calc(24deg * 10)) translate(35px);
+        animation-delay: calc(0.05s * 10);
+    }
+
+    .dots span:nth-child(11) {
+        transform: rotate(calc(24deg * 11)) translate(35px);
+        animation-delay: calc(0.05s * 11);
+    }
+
+    .dots span:nth-child(12) {
+        transform: rotate(calc(24deg * 12)) translate(35px);
+        animation-delay: calc(0.05s * 12);
+    }
+
+    .dots span:nth-child(13) {
+        transform: rotate(calc(24deg * 13)) translate(35px);
+        animation-delay: calc(0.05s * 13);
+    }
+
+    .dots span:nth-child(14) {
+        transform: rotate(calc(24deg * 14)) translate(35px);
+        animation-delay: calc(0.05s * 14);
+    }
+
+    .dots span:nth-child(15) {
+        transform: rotate(calc(24deg * 15)) translate(35px);
+        animation-delay: calc(0.05s * 15);
+    }
+    
+    @@keyframes
+    loadingDots {
+
+        0%,
+        20% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(0.4);
+            opacity: 0.4;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Loading text */
+    .loading-text {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #333;
+    }
+</style>
+
+<div id="loading-screen" class="text-center">
+    <div class="dots">
+        @for (int i = 1; i <= 15; i++)
+        {
+            <span></span>
+        }
+    </div>
+    <div class="loading-text">
+        @localize["Loading"]...
+    </div>
+</div>
+
+<input id="LineLIFFID" type="hidden" value="@ViewBag.LineLIFFID" />
+
+<div id="urlFindLineUser" data-request-url="@Url.Action("FindLineUser", "AccessRights")"></div>
+<div id="urlSerach" data-request-url="@Url.Action("SearchStudent", "LineOA")"></div>
+<div id="urlDefault" data-request-url="@Url.Action("", "LineOA")"></div>
+
+@section Scripts {
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script>
+        const liffId = $("#LineLIFFID").val();
+
+        displayLoading();
+
+        liff.init({ liffId, withLoginOnExternalBrowser: true })
+            .then(() => {
+                if (!liff.isLoggedIn()) liff.login();
+            })
+            .then(() => liff.getProfile()) // จะทำงานได้เพราะ scope profile ถูกเปิด
+            .then(profile => {
+                const urlPost = $("#urlFindLineUser").data("request-url");
+                const data = {
+                    LineUserId: profile.userId,
+                    DisplayName: profile.displayName,
+                    PictureUrl: profile.pictureUrl
+                };
+                return fetch(urlPost, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+            })
+            .then(res => res.json())
+            .then(result => {
+                hideLoading();
+                if (result.message === "donate") {
+                    const urlDonate = $("#urlSerach").data("request-url");
+                    window.location.href = `${urlDonate}?uuid=${result.uuid}&message=donate`;
+                } else {
+                    const urlDefault = $("#urlDefault").data("request-url");
+                    window.location.href = urlDefault;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                hideLoading();
+            });
+        function displayLoading() { $("#spinner").removeClass("d-none"); }
+        function hideLoading() { $("#spinner").addClass("d-none"); }
+    </script>
+}

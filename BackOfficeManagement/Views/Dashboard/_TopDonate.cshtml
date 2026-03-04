@@ -1,0 +1,17 @@
+@using System.Globalization;
+
+<div class="table-responsive">
+    <table id="topDonateTable" class="table table-md table-hover text-nowrap">
+        <thead>
+            <tr>
+                <th class="text-center">@localize["No"]</th>
+                <th style="width: 300px;">@localize["FullName"]</th>
+                <th class="text-center">@localize["Grade_Level"]</th>
+                <th class="text-end" style="width: 200px;">@localize["Donate"] (@localize["Baht"])</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+<div class="urlDefualt" data-request-url="@Url.Action("", "Donate")"></div>

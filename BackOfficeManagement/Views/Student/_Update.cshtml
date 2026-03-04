@@ -1,0 +1,493 @@
+﻿@using System.Globalization;
+@model BackOfficeLibrary.StudentDTOModel
+
+@{
+    var _cultureEN = new CultureInfo("th-TH");
+}
+
+<div id="UpdateStudent" class="offcanvas offcanvas-info offcanvas-end mobile-offcanvas" tabindex="-1"
+    aria-labelledby="UpdateStudentLabel">
+
+    <div class="offcanvas-body">
+
+        <div class="row mb-3">
+            <div class="col-7">
+                <h4 id="StudentLabel" class="offcanvas-title">แก้ไขข้อมูลนักเรียน</h4>
+            </div>
+            <div class="col-5 text-end">
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+        </div>
+
+        <!-- FORM START -->
+        <form id="StudentForm" asp-controller="Student" asp-action="Update" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="Id" />
+            @Html.AntiForgeryToken()
+
+            <div class="row mt-2">
+                <div class="text-center">
+                    <h5 id="StudentHeader" class="heading-h5 mb-3">
+                        @localize["Student_Information"]
+                    </h5>
+                </div>
+
+                <div class="col-lg-12">
+                    <!-- รูปภาพ -->
+                    <div class="row form-group">
+                        <div class="col-lg-6">
+                            <label class="form-label">@localize["Student_Img"]</label>
+                            <div id="image-preview" class="mb-2">
+                                @if (Model.AttachFile != null)
+                                {
+                                    var baseImgProductPath = @Url.Content("~");
+                                    <img src="@baseImgProductPath@Model.AttachFile"
+                                        style="max-width:200px; border-radius:8px;" class="img-thumbnail" />
+                                }
+                            </div>
+
+                            <input type="hidden" id="ImageBase64" name="ImageBase64" />
+                            <input type="hidden" id="ImageExtension" name="ImageExtension" />
+
+                            <input type="file" class="form-control" name="StudentFile" accept="image/*"
+                                onchange="previewImage(event)" />
+                        </div>
+                    </div>
+
+                    <!-- ชื่อ -->
+                    <div class="row form-group">
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>@localize["Prefix"]</label>
+                                <select class="form-control select2" asp-for="Prefix_Id"
+                                    asp-items="@(new SelectList(ViewBag.PrefixList, "Value", "Text"))">
+                                    <option value="">@localize["Select"]</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label>@localize["FirstName"]</label>
+                                <input class="form-control" type="text" asp-for="FirstName" />
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label>@localize["LastName"]</label>
+                                <input class="form-control" type="text" asp-for="LastName" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>@localize["Nick_Name"]</label>
+                                <input class="form-control" type="text" asp-for="NickName" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>ส่วนสูง</label>
+                                <input class="form-control" type="text" asp-for="Height" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>น้ำหนัก</label>
+                                <input class="form-control" type="text" asp-for="Weight" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- เลขประจำตัว / บัตร / วันเกิด -->
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>@localize["Student_Id"]</label>
+                                <input class="form-control" type="text" asp-for="Code" />
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>@localize["IDCard"]</label>
+                                <input class="form-control" type="text" asp-for="IDCard" />
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>@localize["Date_Of_Birth"]</label>
+                                <input class="form-control" type="date" asp-for="DateOfBirth" />
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>ประเภทความพิการ</label>
+                                <select class="form-control select2" asp-for="DisabilityType_Id"
+                                    asp-items="@(new SelectList(ViewBag.DisabilityTypeList, "Value", "Text"))">
+                                    <option value="">@localize["Select"]</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ชั้น / ห้อง / สัญชาติ / ศาสนา -->
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>@localize["Grade_Level"]</label>
+                                <select id="GrandLevel" class="form-control select2" asp-for="GradeLevel_Id"
+                                    asp-items="@(new SelectList(ViewBag.GrandLevelList, "Value", "Text"))" required>
+                                    <option value="">@localize["Select"]</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>@localize["Room"]</label>
+                                <select id="Rooms" class="form-control select2" asp-for="Room_Id"
+                                    asp-items="@(ViewBag.RoomList == null ? new List<SelectListItem>() : new SelectList(ViewBag.RoomList, "Value", "Text"))"
+                                    required>
+                                    <option value="">@localize["Select"]</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>@localize["Nationality"]</label>
+                                <input class="form-control" type="text" asp-for="Nationality" />
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>@localize["Religion"]</label>
+                                <select class="form-control select2" asp-for="Religion_Id" required
+                                    asp-items="@(new SelectList(ViewBag.ReligionList, "Value", "Text"))">
+                                    <option value="">@localize["Select"]</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>@localize["Year"]</label>
+                                <select id="schoolYear" class="form-control select2" asp-for="School_Year_Id"
+                                    asp-items="@(new SelectList(ViewBag.SchoolYearList, "Value", "Text"))" required>
+                                    <option value="">@localize["Select"]</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>@localize["Term"]</label>
+                                <select id="term" class="form-control select2" asp-for="Term_Id"
+                                    asp-items="@(ViewBag.TermList == null ? new List<SelectListItem>() : new SelectList(ViewBag.TermList, "Value", "Text"))"
+                                    required>
+                                    <option value="">@localize["Select"]</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>วันที่เข้าการศึกษา</label>
+                                <input class="form-control" type="Date" asp-for="StartDate" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ที่อยู่ -->
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>รหัสประจำบ้าน</label>
+                                <input class="form-control" type="text" asp-for="HouseRegNo" />
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label>@localize["Address"]</label>
+                                <input class="form-control" type="text" asp-for="Address" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>@localize["Address_dsc"]</label>
+                                <input class="form-control" type="text" asp-for="Address_desc" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>ซอย</label>
+                                <input class="form-control" type="text" asp-for="Soi" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>ถนน</label>
+                                <input class="form-control" type="text" asp-for="Road" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- จังหวัด / อำเภอ -->
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>@localize["Provinces"]</label>
+                                <select id="Province" class="form-control select2" asp-for="Province_Id"
+                                    asp-items="@(new SelectList(ViewBag.ProvincesList, "Value", "Text"))">
+                                    <option value="">@localize["Select"]</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>@localize["Districts"]</label>
+                                <select id="District" class="form-control select2" asp-for="District_Id"
+                                    asp-items="@(ViewBag.District == null ? new List<SelectListItem>() : new SelectList(ViewBag.District, "Value", "Text"))">
+                                    <option value="">@localize["Select"]</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ตำบล / ไปรษณีย์ -->
+                    <div class="row mb-3">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>@localize["Subdistricts"]</label>
+                                <select id="Subdistrict" class="form-control select2" asp-for="Subdistrict_Id"
+                                    asp-items="@(ViewBag.SubDistrict == null  ? new List<SelectListItem>(): new SelectList(ViewBag.SubDistrict, "Value", "Text"))">
+                                    <option value="">@localize["Select"]</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>@localize["ZipCode"]</label>
+                                <input id="ZipCode" class="form-control" value="@ViewBag.Zipcode" readonly />
+                                <input id="ZipCode_Id" type="hidden" asp-for="ZipCode_Id" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.PreviousSchool != null)
+                {
+                    <div class="text-center mt-4">
+                        <h5>โรงเรียนเดิม</h5>
+                    </div>
+
+                    var PreviousSCViewData = new ViewDataDictionary(ViewData);
+                    PreviousSCViewData.TemplateInfo.HtmlFieldPrefix = $"PreviousSchool";
+
+                    <partial name="_PreviousSchoolForm" model="Model.PreviousSchool" view-data="PreviousSCViewData" />
+                }
+
+                @for (int i = 0; i < Model.Parents.Count; i++)
+                {
+                    <div class="text-center mt-4">
+                        <h5>@localize["Parent_Information"] @(i + 1)</h5>
+                    </div>
+
+                    var childViewData = new ViewDataDictionary(ViewData);
+                    childViewData.TemplateInfo.HtmlFieldPrefix = $"Parents[{i}]";
+
+                    <partial name="_ParentForm" model="Model.Parents[i]" view-data="childViewData" />
+                }
+
+            </div>
+
+            <!-- Footer -->
+            <div class="offcanvas-footer border-top p-3 text-end">
+                <button type="submit" class="btn btn-primary m-1">
+                    @localize["Save"]
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+
+
+
+<script>
+    $(function () {
+
+        $('#UpdateStudent').find('select.select2').each(function () {
+            // ถ้า select2 ถูก init อยู่แล้ว ให้ destroy ก่อน
+            if ($(this).data('select2')) {
+                $(this).select2('destroy');
+            }
+            // init ใหม่
+            $(this).select2({
+                width: "100%",
+                dropdownParent: $(this).parent(),
+            });
+        });
+
+        // ------------------ PROVINCE ------------------
+        $("#Province").change(function () {
+            var aaa = "@localize["Select"]";
+            var province = $(this).val();
+
+            let url = $("#urlDefualt").data("request-url") + "/GetDistrict?province=" + province;
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (data) {
+                    if (data.status == 200) {
+                        let options = '<option value="">' + aaa + '</option>';
+                        $.each(data.districtslist, function (i, item) {
+                            options += `<option value="${item.value}">${item.text}</option>`;
+                        });
+                        $("#District").html(options).trigger('change');
+                    }
+                }
+            });
+        });
+
+
+        // ------------------ DISTRICT ------------------
+        $("#District").change(function () {
+            var aaa = "@localize["Select"]";
+            var province = $("#Province").val();
+            var district = $(this).val();
+
+            let url = $("#urlDefualt").data("request-url")
+                + `/GetSubDistrict?province=${province}&district=${district}`;
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (data) {
+                    if (data.status == 200) {
+                        let options = '<option value="">' + aaa + '</option>';
+                        $.each(data.subdistrictslist, function (i, item) {
+                            options += `<option value="${item.value}">${item.text}</option>`;
+                        });
+                        $("#Subdistrict").html(options).trigger('change');
+                    }
+                }
+            });
+        });
+
+
+        // ------------------ SUBDISTRICT → ZIPCODE ------------------
+        $("#Subdistrict").change(function () {
+            var province = $("#Province").val();
+            var district = $("#District").val();
+            var subdistrict = $(this).val();
+
+            let url = $("#urlDefualt").data("request-url")
+                + `/GetZipCode?province=${province}&district=${district}&subdistrict=${subdistrict}`;
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (data) {
+                    if (data.status === 200 && data.zipcodelist.length > 0) {
+                        $("#ZipCode").val(data.zipcodelist[0].text);
+                        $("#ZipCode_Id").val(data.zipcodelist[0].value);
+                    } else {
+                        $("#ZipCode").val("");
+                    }
+                }
+            });
+        });
+
+        $("#GrandLevel").change(function () {
+
+            var aaa = "@localize["Select"]";
+            var grade_level = $(this).val();
+
+            let url = $("#urlDefualt").data("request-url") + "/GetRoom?grade_level=" + grade_level;
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (data) {
+                    if (data.status == 200) {
+                        let options = '<option value="">' + aaa + '</option>';
+                        $.each(data.roomList, function (i, item) {
+                            options += `<option value="${item.value}">${item.text}</option>`;
+                        });
+                        $("#Rooms").html(options);
+                    }
+                }
+            });
+        });
+
+        $("#schoolYear").change(function () {
+
+            var aaa = "@localize["Select"]";
+            var schoolYearId = $(this).val();
+
+            let url = $("#urlDefualt").data("request-url") + "/GetTermsBySchoolYear?schoolYearId=" + schoolYearId;
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (data) {
+                    if (data.status == 200) {
+                        let options = '<option value="">' + aaa + '</option>';
+                        $.each(data.termsList, function (i, item) {
+                            options += `<option value="${item.value}">${item.text}</option>`;
+                        });
+                        $("#term").html(options);
+                    }
+                }
+            });
+        });
+
+    });
+
+    function previewImage(event) {
+        const file = event.target.files[0];
+        const previewContainer = document.getElementById("image-preview");
+        const base64Input = document.getElementById("ImageBase64");
+        const extInput = document.getElementById("ImageExtension");
+
+        // เคลียร์ preview ก่อน
+        previewContainer.innerHTML = "";
+        base64Input.value = "";
+        extInput.value = "";
+
+        if (!file) return;
+
+        // เก็บนามสกุลไฟล์
+        const extension = file.name.split(".").pop().toLowerCase();
+        extInput.value = extension;
+
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            // preview image
+            const img = document.createElement("img");
+            img.src = e.target.result;
+            img.style.maxWidth = "200px";
+            img.style.borderRadius = "8px";
+            img.style.boxShadow = "0 2px 6px rgba(0,0,0,0.15)";
+            img.classList.add("img-thumbnail");
+
+            previewContainer.appendChild(img);
+
+            // เก็บ base64 (ตัด prefix ออก)
+            const base64Data = e.target.result.split(",")[1];
+            base64Input.value = base64Data;
+        };
+
+        reader.readAsDataURL(file);
+    }
+</script>

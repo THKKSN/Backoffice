@@ -1,0 +1,43 @@
+
+@model List<BackOfficeLibrary.DonateSettingViewwModel>
+@using System.Globalization;
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body p-3">
+                <!-- Search + Filter -->
+                <div class="row mb-3">
+
+                    <div class="col-lg-3">
+                        <label class="font-weight-normal" style="font-size: 16px; color: #869099 !important">
+                            @localize["Year"]
+                        </label>
+                        <select id="schoolYearDefault" class="form-control select2"
+                            asp-items="@(new SelectList(ViewBag.SchoolYearList, "Value", "Text"))">
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- DataTable -->
+                <div class="row">
+                    <div class="col-12">
+                        <table id="tblDonateSettings" class="table table-hover text-nowrap" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">@localize["Year"]</th>
+                                    <th class="text-center">@localize["Term"]</th>
+                                    <th class="text-center">@localize["Grade_Level"]</th>
+                                    <th class="text-end">@localize["Amount"]</th>
+                                    <th class="text-center" style="width: 300px;">&nbsp;</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

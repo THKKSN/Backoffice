@@ -1,0 +1,239 @@
+﻿@using System.Globalization;
+
+@{
+    var _cultureEN = new CultureInfo("en-US");
+}
+
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-7">
+                <h3>@localize["Teacher_List"]</h3>
+            </div>
+            <div class="col-lg-5 text-end">
+                <div class="d-flex flex-column flex-lg-row justify-content-center justify-content-lg-end gap-2">
+                <button class="btn btn-primary" type="button" onclick="CreateTeacher()">
+                    @localize["btnCreate"]
+                </button>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+
+                <div class="card" style="box-shadow:none; border:1px solid #DEE2E6 !important;">
+                    <div class="card-body">
+
+                        <!-- Filter Section -->
+                        <div class="row filter-bar py-3 d-flex justify-content-between align-items-center">
+
+                            <!-- Search -->
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="searchInput"
+                                    placeholder="@localize["Search"]" />
+                            </div>
+
+                            <!-- Filter, Sort, Reset -->
+                            @* <div class="col-md-8 d-flex justify-content-end gap-2">
+
+                                <div class="mr-2" style="width:20%;">
+                                    <select class="form-control" id="filterBy">
+                                        <option value="">@localize["Filter_by"]</option>
+                                    </select>
+                                </div>
+
+                                <div class="mr-2" style="width:20%;">
+                                    <select class="form-control" id="sortBy">
+                                        <option value="">@localize["Sort_by"]</option>
+                                    </select>
+                                </div>
+
+                                <button class="btn btn-outline-secondary btn-reset" id="clearFilters" title="Clear">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+
+                            </div> *@
+                        </div>
+
+                        <!-- Table -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+
+                                <table id="tblTeacher" class="table table-hover text-nowrap" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">@localize["FirstName"] - @localize["LastName"]</th>
+                                            <th class="text-center">ชื่อเล่น</th>
+                                            <th class="text-center">&nbsp;</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+                        </div>
+
+                    </div> <!-- card-body -->
+                </div> <!-- card -->
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="ViewTeacher"></div>
+<div id="CreateTeacher"></div>
+<div id="UpdateTeacher"></div>
+
+<div id="urlDefualt" data-request-url="@Url.Action("", "Teacher")"></div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/teacher/_teacher.js" asp-append-version="true"></script>
+    <script>
+        let currentRequest = null;
+        if ($.fn.DataTable.isDataTable('#tblTeacher')) {
+            $('#tblTeacher').DataTable().clear().draw().destroy();
+        }
+
+        const table = $('#tblTeacher').DataTable({
+            ajax: {
+                url: '@Url.Action("GetTeacherListDataTable", "Teacher", new { area = "" })',
+                type: 'POST',
+                contentType: 'application/json',
+                data: function (d) {
+
+                    const queryData = {
+                        Draw: 1,
+                        Start: 0,
+                        Length: 0,
+                        Name: "",
+                        Search: "",
+                        SearchDate: "",
+                        StartDate: "",
+                        EndDate: "",
+                        SortColumn: "",
+                        SortOrder: "",
+                        FilterBy: "",
+                        schoolyear: "",
+                    };
+                    return JSON.stringify(queryData); // ส่งข้อมูลในรูปแบบ JSON
+                },
+                dataSrc: function (json) {
+                    return json.data || []; // รับข้อมูลจาก API และใช้ข้อมูลที่ส่งกลับมา
+                },
+                beforeSend: function (jqXHR, settings) {
+                    // เก็บคำขอ AJAX
+                    currentRequest = jqXHR;
+                },
+                complete: function (xhr, status) {
+                    // หลังจากที่คำขอเสร็จสิ้น
+                    currentRequest = null;  // รีเซ็ตตัวแปรคำขอ
+                }, error: function (xhr, status, error) {
+                    if (status === 'abort') {
+                        console.log('คำขอถูกยกเลิก');
+                    } else {
+                        console.log('เกิดข้อผิดพลาด: ' + error);
+                    }
+                }
+            },
+            "columns": [
+                {
+                    data: "fullName",
+                    className: "text-left",
+                },
+                {
+                    data: "nickName",
+                    className: "text-center",
+                },
+                {
+                    data: null,
+                    orderable: false,
+                    className: "text-center",
+                    render: function (data, type, row) {
+                        return `<button onclick="ViewTeacher(${row.id})" class="btn btn-default"><i class="bi bi-eye"></i></button>
+                                <button onclick="UpdateTeacher(${row.id})" class="btn btn-default"><i class="bi bi-pencil-square"></i></button>
+                                <button onclick="DeleteTeacher(${row.id})" class="btn btn-danger"><i class="bi bi-trash"></i></button>`;
+                        
+                    }
+                }
+            ],
+            paging: true,
+            pageLength: 10,
+                paging: true, // เปิดใช้งาน Pagination
+                lengthChange: true, // เปิดการเลือกจำนวนข้อมูลที่จะแสดงต่อหน้า
+                searching: false, // ปิดการใช้งานช่องค้นหาข้อมูล
+                ordering: true, // เปิดใช้งานการเรียงลำดับข้อมูลในแต่ละคอลัมน์
+                info: true, // แสดงข้อมูลเกี่ยวกับจำนวนแถวที่แสดงในตาราง เช่น "Showing 1 to 10 of 50 entries"
+                autoWidth: false, // ปิดการตั้งค่าความกว้างคอลัมน์อัตโนมัติ
+                responsive: false, // ปิดการใช้งาน Responsive (เมื่อปิดแล้วจะไม่แสดงปุ่ม "+" บนหน้าจอที่ย่อขนาดลง)
+            language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "ค้นหา...",
+                    paginate: {
+                        previous: "ก่อนหน้า",
+                        next: "ถัดไป"
+                    },
+                    zeroRecords: "ไม่พบข้อมูล",
+                    info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ",
+                    infoEmpty: "ไม่มีข้อมูล",
+                },
+            dom: 'lrtip',
+            drawCallback: function () { // ฟังก์ชันที่ถูกเรียกทุกครั้งที่ตารางมีการวาดใหม่ เช่น เมื่อเปลี่ยนหน้า เรียงลำดับ หรือกรองข้อมูล
+
+                var tableEl = document.getElementById("tblTeacher");
+
+                // ตรวจว่ามี div ครอบอยู่แล้วหรือยัง
+                if (!tableEl.parentElement.classList.contains("table-responsive")) {
+                    var wrapper = document.createElement("div");
+                    wrapper.className = "table-responsive";
+
+                    // ย้าย table เข้า div
+                    tableEl.parentNode.insertBefore(wrapper, tableEl);
+                    wrapper.appendChild(tableEl);
+                }
+            }
+        });
+
+        // Search
+        $('#searchInput').on('keyup', function () {
+            table.search(this.value).draw();
+        });
+
+        // Sort
+        $('#sortBy').on('change', function () {
+            const col = $(this).find(':selected').data('column');
+            if (col !== undefined) table.order([col, 'asc']).draw();
+        });
+
+        // Filter
+        $('#filterBy').on('change', function () {
+            const col = $(this).find(':selected').data('column');
+            const keyword = $('#searchInput').val();
+
+            table.columns().search('');
+            if (col !== undefined && keyword.trim() !== '') {
+                table.column(col).search(keyword).draw();
+            }
+        });
+
+        // Reset
+        $('#clearFilters').on('click', function () {
+            $('#searchInput').val('');
+            $('#filterBy, #sortBy').val('');
+            table.search('').columns().search('').order([]).draw();
+        });
+    </script>
+}

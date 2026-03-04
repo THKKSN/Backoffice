@@ -1,0 +1,38 @@
+@model List<BackOfficeLibrary.OutstandingDonationViewModel>
+
+<div class="row mt-2">
+    @foreach (var o in Model)
+    {
+        var diff = o.TotalAmount - o.DonateAmount;
+        var complete = diff <= 0;
+
+        <div class="col-12 mb-2">
+            <label class="w-100">
+
+                <div class="d-flex justify-content-between align-items-center border rounded p-3
+                            @(complete 
+                                ? "border-success text-success bg-opacity-10" 
+                                : "border-danger text-danger bg-opacity-10")">
+
+                    <!-- LEFT : DETAILS -->
+                    <div>
+                        <div class="fw-bold fs-6">เทอม @o.Term</div>
+                        <div>ต้องชำระ: @o.TotalAmount.ToString("N0") บาท</div>
+                        <div>ชำระแล้ว: @o.DonateAmount.ToString("N0") บาท</div>
+                    </div>
+
+                    <!-- RIGHT : RADIO -->
+                    <div class="mb-3">
+                        <input type="radio"
+                               name="Term_Id"
+                               value="@o.Term_Id"
+                               class="form-check-input"
+                               style="transform: scale(1.4);" />
+                    </div>
+
+                </div>
+
+            </label>
+        </div>
+    }
+</div>

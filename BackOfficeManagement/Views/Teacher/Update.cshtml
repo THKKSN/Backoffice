@@ -1,0 +1,137 @@
+﻿@using System.Globalization;
+@model BackOfficeLibrary.TeacherDTOModel
+
+@{
+    var _cultureEN = new CultureInfo("en-US");
+}
+
+<div id="UpdateTeacher" class="offcanvas offcanvas-info offcanvas-end mobile-offcanvas" tabindex="-1"
+    aria-labelledby="UpdateTeacherLabel">
+
+    <div class="offcanvas-body">
+
+        <div class="row mb-3">
+            <div class="col-7">
+                <h4 class="offcanvas-title">แก้ไขข้อมูล</h4>
+            </div>
+            <div class="col-5 text-end">
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+        </div>
+
+        <form id="update-teacher-form">
+            <input type="hidden" asp-for="Id" />
+            <div class="text-center">
+                <h5 class="heading-h5 mb-3">
+                    ข้อมูลคุณครู
+                </h5>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-2">
+                    <div class="form-group">
+                        <label>@localize["Prefix"]</label>
+                        <select class="form-control select2"
+                            asp-items="@(new SelectList(ViewBag.PrefixList, "Value", "Text"))" asp-for="Prefix_Id">
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                        <span class="error-message text-danger" style="display: none;">จำเป็น</span>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="form-group">
+                        <label>@localize["FirstName"]</label>
+                        <input class="form-control" type="text" asp-for="FirstName" />
+                        <span class="error-message text-danger" style="display: none;">จำเป็น</span>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="form-group">
+                        <label>@localize["LastName"]</label>
+                        <input class="form-control" type="text" asp-for="LastName" />
+                        <span class="error-message text-danger" style="display: none;">จำเป็น</span>
+                    </div>
+                </div>
+                <div class="col-12 col-md-2">
+                    <div class="form-group">
+                        <label>@localize["Nick_Name"]</label>
+                        <input class="form-control" type="text" asp-for="NickName" />
+                        <span class="error-message text-danger" style="display: none;">จำเป็น</span>
+                    </div>
+                </div>
+            </div>
+            <div class="offcanvas-footer border-top p-3 text-end">
+                <button type="submit" class="btn btn-primary m-1">
+                    @localize["Save"]
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    $('#UpdateTeacher').find('select.select2').each(function () {
+        // ถ้า select2 ถูก init อยู่แล้ว ให้ destroy ก่อน
+        if ($(this).data('select2')) {
+            $(this).select2('destroy');
+        }
+        // init ใหม่
+        $(this).select2({
+            width: "100%",
+            dropdownParent: $(this).parent(),
+        });
+    });
+
+    $("#update-teacher-form").submit(function (event) {
+        event.preventDefault(); // Prevent default form submission
+        var isValid = true;
+        var errorMessage = "";
+
+        // Check specific select fields
+        const keysToCheck = ["Prefix_Id", "FirstName", "FirstName", "NickName"];
+        keysToCheck.forEach(function (key) {
+            const fieldElement = $(`#update-teacher-form [name="${key}"]`);
+            if (!fieldElement.val() || fieldElement.val() === "") {
+                isValid = false;
+                fieldElement.closest('.form-group').find('.error-message').show();
+            } else {
+                fieldElement.closest('.form-group').find('.error-message').hide();
+            }
+        });
+
+        if (!isValid) {
+            /*Swal.fire({
+                icon: "error",
+                title: "Form validation error",
+                text: "Please fill out all required fields.",
+            });*/
+            return;
+        } else {
+            $.ajax({
+                url: '@Url.Action("Update", "Teacher", new { area = "" })',
+                type: 'POST',
+                data: $("#update-teacher-form").serialize(),
+                success: function (response) {
+                    if (response.status) {
+                        $("#UpdateTeacher").find(".offcanvas").offcanvas("hide");
+                        $('#tblTeacher').DataTable().ajax.reload(null, false);
+                    } else {
+                        Swal.fire({
+                            title: "ล้มเหลว",
+                            text: "ไม่สามารถเพิ่มข้อมูลคุณครูได้",
+                            icon: "error"
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: "เกิดข้อผิดพลาด!",
+                        text: error.toString(),
+                        icon: "error"
+                    });
+                }
+            });
+        }
+    });
+</script>

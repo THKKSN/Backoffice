@@ -1,0 +1,196 @@
+@model BackOfficeLibrary.LineDonateViewModel
+@using System.Globalization
+
+<div class="container py-4">
+
+    <h3 class="text-center fw-bold mb-4" style="color:#007bff; letter-spacing:0.5px;">
+        ค้นหานักเรียนเพื่อบริจาค
+    </h3>
+
+    <div class="p-4 shadow-sm mb-4" style="
+        background: linear-gradient(150deg,#ffffff,#f3f8ff);
+        border-radius: 18px;
+        border: 1px solid rgba(0,123,255,0.18);
+    ">
+        <form method="post">
+            <!-- Step 1 -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">ระดับชั้นปัจจุบัน</label>
+                <select class="form-control select2" asp-for="GradeLevel_Id">
+                    <option value="">เลือก</option>
+                    @foreach (var g in ViewBag.GrandLevelList)
+                    {
+                        <option value="@g.Value">@g.Text</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">ค้นหานักเรียน</label>
+                <input asp-for="SearchText" class="form-control"
+                    placeholder="ชื่อ / นามสกุล / ชื่อเล่น / บัตรประชาชน" />
+                <span asp-validation-for="SearchText" class="text-danger small"></span>
+            </div>
+
+            <button class="btn btn-primary w-100 py-2" style="border-radius:12px;">
+                ค้นหา
+            </button>
+        </form>
+    </div>
+
+    @if (ViewBag.StudentList != null)
+    {
+        <h4 class="fw-bold mt-4 mb-3 m-3" style="color:#003f7f;">ข้อมูลนักเรียนที่ค้นพบ</h4>
+
+        <div class="my-3 p-4 shadow-sm" style="
+                        background: linear-gradient(160deg,#ffffff,#f3f8ff);
+                        border-radius: 16px;
+                        border: 1px solid rgba(0,123,255,0.18);
+                    ">
+            @foreach (var s in ViewBag.StudentList)
+            {
+                <a onclick="selectStudent('@s.Id')" class="p-3 my-3 d-block shadow-sm" style="
+                                                text-decoration:none;
+                                                border-radius:14px;
+                                                background:#ffffff;
+                                                border:1px solid rgba(0,123,255,0.20);
+                                                transition:0.2s;
+                                            " onmouseover="this.style.transform='scale(1.01)'"
+                    onmouseout="this.style.transform='scale(1)'">
+
+                    <div class="fw-bold fs-5" style="color:#003f7f;">
+                        @s.Prefix @s.FirstName @s.LastName
+                        <span style="color:#6c8fb7;">(@s.NickName)</span>
+                    </div>
+
+                    <div class="text-muted">ชั้น @s.GradeLevel / @s.Room</div>
+                    <div class="text-muted">เลขบัตรประชาชน @s.IDCard</div>
+                    <div class="text-muted">รหัสนักเรียน @s.Code</div>
+                </a>
+            }
+        </div>
+    }
+
+    <div id="yearSection" class="mt-4" style="display:none;"></div>
+
+</div>
+
+<div id="urlDonate" data-request-url="@Url.Action("Donate", "LineOA")"></div>
+<div id="urlLoadYearTerm" data-request-url="@Url.Action("LoadYearTerm", "LineOA")"></div>
+<div id="urlOutstandingsByUuid" data-request-url="@Url.Action("OutstandingsByUuid", "LineOA")"></div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        let selectedStudent = null;
+
+        function selectStudent(id) {
+            selectedStudent = id;
+
+            const url = $("#urlLoadYearTerm").data("request-url");
+
+            $.get(url + "?studentId=" + id, function (res) {
+
+                let html = `
+                                                            <h4 class="mb-3 ml-3">ปีการศึกษา</h4>
+                                                            <div class="accordion" id="yearAccordion">`;
+
+                res.forEach((y, index) => {
+                    const cid = "collapse_" + index;
+
+                    let termHtml = "";
+                    y.terms.forEach(t => {
+                        termHtml += `
+                                                    <div class="mb-3">
+                                                        <div id="outstanding_${y.schoolYearId}_${t.termId}"
+                                                            class="text-center"
+                                                            style="cursor:pointer"
+                                                            onclick="goDonate('${t.termId}', '${y.schoolYearId}')">
+                                                            กำลังโหลด...
+                                                        </div>
+
+                                                    </div>
+                                                `;
+                    });
+
+                    html += `
+                                                <div class="card mb-2 shadow-sm">
+                                                    <div class="card-header "
+                                                         style="cursor:pointer; border:1px solid #007bff; border-radius:10px;"
+                                                         data-bs-toggle="collapse" 
+                                                         data-bs-target="#${cid}">
+                                                        <div class="d-flex justify-content-between">
+                                                            <span>${y.schoolYearName} </span>
+                                                            <span class="text-end"><i class="bi bi-chevron-down"></i></spanclass=>
+                                                        </div>
+                                                    </div>
+
+                                                    <div id="${cid}" 
+                                                         class="collapse" 
+                                                         data-bs-parent="#yearAccordion"
+                                                         data-year-id="${y.schoolYearId}"
+                                                         data-terms='${JSON.stringify(y.terms)}'>
+                 
+                                                        <div class="card-body">
+                                                            ${termHtml}
+                                                        </div>
+                                                    </div>
+                                                </div>`;
+                });
+                setTimeout(() => {
+                    $(".collapse").on("show.bs.collapse", function () {
+                        const yearId = $(this).data("year-id");
+                        const terms = $(this).data("terms");
+
+                        terms.forEach(t => {
+                            loadOutstanding(selectedStudent, yearId, t.termId);
+                        });
+                    });
+
+                }, 200);
+
+                html += `</div>`;
+
+                $("#yearSection").html(html);
+                $("#yearSection").show();
+
+                // โหลด outstanding ให้ทุกเทอม
+                res.forEach(y => {
+                    y.terms.forEach(t => {
+                        loadOutstanding(selectedStudent, y.schoolYearId, t.termId);
+                    });
+                });
+
+            });
+        }
+
+        // โหลดข้อมูลค่าส่วนต่าง
+        function loadOutstanding(studentId, yearId, termId) {
+            const url = $("#urlOutstandingsByUuid").data("request-url");
+
+            const urlGet = url + `?uuid=${studentId}&yearId=${yearId}&termId=${termId}`;
+
+            $.get(urlGet, function (html) {
+                $("#outstanding_" + yearId + "_" + termId).html(html);
+            });
+        }
+
+        // ไปหน้าบริจาค
+        function goDonate(termId, yearId) {
+            const uuid = "@Model.Uuid";
+            const urlLoad = $("#urlDonate").data("request-url");
+
+            const url = urlLoad +
+                `?uuid=${uuid}&studentId=${selectedStudent}&schoolYearId=${yearId}&termId=${termId}`;
+
+            window.location.href = url;
+        }
+
+    </script>
+
+    <script src="~/js/line/_donate.js"></script>
+}

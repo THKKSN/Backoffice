@@ -1,0 +1,58 @@
+@using System.Globalization;
+@model BackOfficeLibrary.GradeLevelViewModel
+
+@{
+    var _cultureEN = new CultureInfo("th-TH");
+}
+
+<div id="CreateGradeLevel" class="offcanvas offcanvas-info offcanvas-end mobile-offcanvas" tabindex="-1"
+    aria-labelledby="CreateGradeLevelLabel">
+
+    <div class="offcanvas-body">
+
+        <div class="row mb-3">
+            <div class="col-7">
+                <h4 id="GradeLevelLabel" class="offcanvas-title">สร้างข้อมูลชั้นเรียน</h4>
+            </div>
+            <div class="col-5 text-end">
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            
+            <form id="GradeLevelForm" asp-controller="GradeLevel" asp-action="Create" method="post" enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label class="font-weight-normal">
+                            @localize["Grade_Level"]
+                        </label>
+                        <input type="text" class="form-control" asp-for="Name"/>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label class="font-weight-normal">
+                            จำนวนห้องเรียน
+                        </label>
+                        <input type="number" class="form-control" asp-for="Room_Count"/>
+                    </div>
+                </div>
+            </div>
+            <div class="offcanvas-footer border-top p-3 text-end">
+                <button type="submit" class="btn btn-primary m-1">
+                    @localize["Save"]
+                </button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/js/gradelevel/_gradelevel.js" asp-append-version="true"></script>
+}

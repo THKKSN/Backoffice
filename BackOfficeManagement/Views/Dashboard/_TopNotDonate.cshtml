@@ -1,0 +1,20 @@
+@using System.Globalization;
+@{
+    var _cultureEN = new CultureInfo("th-TH");
+}
+
+<table id="topNotDonateTable" class="table table-md table-hover text-nowrap">
+    <thead>
+        <tr>
+            <th class="text-center">@localize["No"]</th>
+            <th style="width: 300px;">@localize["FullName"]</th>
+            <th class="text-center">@localize["Grade_Level"]</th>
+            <th class="text-end" style="width: 200px;">@localize["คงเหลือ"] (@localize["Baht"])</th>
+        </tr>
+    </thead>
+    <tbody>
+     
+    </tbody>
+</table>
+
+<div class="urlDefualt" data-request-url="@Url.Action("", "Donate")"></div>

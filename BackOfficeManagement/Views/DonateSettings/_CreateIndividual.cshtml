@@ -1,0 +1,197 @@
+@using System.Globalization;
+@model BackOfficeLibrary.DonateIndividualViewModel
+
+@{
+    var _cultureEN = new CultureInfo("th-TH");
+}
+
+<div id="CreateDonateIndividual" class="offcanvas offcanvas-info offcanvas-end mobile-offcanvas" tabindex="-1">
+
+    <div class="offcanvas-body">
+
+        <div class="row mb-3">
+            <div class="col-7">
+                <h4 class="offcanvas-title">สร้างข้อมูลการบริจาครายบุคคล</h4>
+            </div>
+            <div class="col-5 text-end">
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+        </div>
+
+        <form id="DonateIndividualForm" asp-controller="DonateSettings" asp-action="CreateIndividual" method="post"
+            enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>@localize["FullName"]</label>
+                        <select id="Student_Id" asp-for="Student_Id" class="form-control select2"
+                            asp-items="ViewBag.StudentList" required>
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>@localize["Year"]</label>
+                        <select id="SchoolYear_Id" asp-for="SchoolYear_Id" class="form-control select2"
+                            asp-items="ViewBag.SchoolYearList" required>
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>@localize["Term"]</label>
+                        <select id="Term_Id" asp-for="Term_Id" class="form-control select2" required>
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>@localize["Grade_Level"]</label>
+                        <select id="GradeLevel_Id_Individual" asp-for="GradeLevel_Id" class="form-control select2" required>
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>@localize["Amount"]</label>
+                        <input id="Amount" type="number" asp-for="OverrideAmount" class="form-control" required>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>@localize["Remark"]</label>
+                        <input id="Remark" type="text" asp-for="Remark" class="form-control">
+                    </div>
+                </div>
+                <div class="offcanvas-footer border-top p-3 text-end">
+                    <button type="submit" class="btn btn-primary m-1">
+                        @localize["Save"]
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        const selectText = "@localize["Select"]";
+
+        // เริ่มต้น disable ทั้งหมดก่อน
+        $("#SchoolYear_Id").prop("disabled", true);
+        $("#Term_Id").prop("disabled", true);
+        $("#GradeLevel_Id_Individual").prop("disabled", true);
+        $("#Amount").prop("disabled", true);
+
+        // 1️⃣ เลือกนักเรียนก่อน
+        $("#Student_Id").change(function () {
+
+            let studentId = $(this).val();
+
+            resetDropdown("#SchoolYear_Id");
+            resetDropdown("#Term_Id");
+            resetDropdown("#GradeLevel_Id_Individual");
+
+            if (!studentId) return;
+
+            let url = $("#urlDefualt").data("request-url")
+                + "/GetSchoolYearIndividual?student_Id=" + studentId;
+
+            $.get(url, function (data) {
+
+                if (data.status === 200) {
+
+                    let options = `<option value="">${selectText}</option>`;
+
+                    $.each(data.termsList, function (i, item) {
+                        options += `<option value="${item.value}">${item.text}</option>`;
+                    });
+
+                    $("#SchoolYear_Id")
+                        .html(options)
+                        .prop("disabled", false);
+                }
+            });
+        });
+
+        // 2️⃣ เลือกปี → โหลดเทอม
+        $("#SchoolYear_Id").change(function () {
+
+            let schoolYearId = $(this).val();
+
+            resetDropdown("#Term_Id");
+            resetDropdown("#GradeLevel_Id_Individual");
+
+            if (!schoolYearId) return;
+
+            let url = $("#urlGetTermIndividual").data("request-url")
+                + "?schoolYearId=" + schoolYearId;
+
+            $.get(url, function (data) {
+
+                if (data.status === 200) {
+
+                    let options = `<option value="">${selectText}</option>`;
+
+                    $.each(data.termsList, function (i, item) {
+                        options += `<option value="${item.value}">${item.text}</option>`;
+                    });
+
+                    $("#Term_Id")
+                        .html(options)
+                        .prop("disabled", false);
+                }
+            });
+        });
+
+        // 3️⃣ เลือกเทอม → โหลดระดับชั้น
+        $("#Term_Id").change(function () {
+
+            let schoolYearId = $("#SchoolYear_Id").val();
+            let termId = $(this).val();
+            var studentId = $("#Student_Id").val();
+
+            resetDropdown("#GradeLevel_Id_Individual");
+
+            if (!termId) return;
+
+            let url = $("#urlDefualt").data("request-url")
+                + "/GetGradeLevelIndividual?schoolYearId="
+                + schoolYearId + "&termId=" + termId + "&studentId=" + studentId;
+
+            $.get(url, function (data) {
+
+                if (data.status === 200) {
+
+                    let options = `<option value="">${selectText}</option>`;
+
+                    $.each(data.gradeList, function (i, item) {
+                        options += `<option value="${item.value}">${item.text}</option>`;
+                    });
+
+                    $("#GradeLevel_Id_Individual")
+                        .html(options)
+                        .prop("disabled", false);
+
+                    $("#Amount").prop("disabled", false);
+                }
+            });
+        });
+
+        function resetDropdown(selector) {
+            $(selector)
+                .html(`<option value="">${selectText}</option>`)
+                .prop("disabled", true);
+        }
+
+    });
+
+</script>
+<script src="~/js/donate/_settings.js" asp-append-version="true"></script>

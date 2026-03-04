@@ -1,0 +1,125 @@
+﻿@model List<BackOfficeLibrary.GradeLevelViewModel>
+@using System.Globalization;
+
+@{
+    var _cultureEN = new CultureInfo("th-TH");
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-7">
+                <h3>@localize["Grade_Level"]</h3>
+            </div>
+            <div class="col-lg-5 text-end">
+                <div class="d-flex flex-column flex-lg-row justify-content-center justify-content-lg-end gap-2">
+                    <button class="btn btn-primary" type="button" onclick="CreateGradeLevel()">
+                        @localize["btnCreate"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card" style="box-shadow: none; border: 1px solid #DEE2E6 !important;">
+                    <div class="card-body">
+                        @* <div class="row mb-3">
+                            <div class="col-3">
+                                <label class="font-weight-normal" style="font-size: 16px; color: #869099 !important">
+                                    @localize["Search"]
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text input-search" style="border-right: none !important;">
+                                        <i class="fas fa-search icon-search"></i>
+                                    </span>
+                                    <input id="txtSearch" class="form-control input-search" type="search"
+                                        style="box-shadow: none !important; border-left: none !important;" />
+                                </div>
+                            </div>
+                        </div> *@
+
+                        <table id="tblGradeLevel" class="table table-hover text-nowrap" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">@localize["Grade_Level"]</th>
+                                    <th class="text-center">@localize["Room"]</th>
+                                    <th class="text-center">&nbsp;</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ViewGradeLevel"></div>
+<div id="UpdateGradeLevel"></div>
+<div id="CreateGradeLevel"></div>
+
+<div id="urlDefualt" data-request-url="@Url.Action("", "GradeLevel")"></div>
+@* <button class="btn btn-default" onclick="ViewGradeLevel('${id}')"><i class="bi bi-eye"></i></button> *@
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        let gradeTable;
+
+        $(document).ready(function () {
+
+            gradeTable = $('#tblGradeLevel').DataTable({
+                ajax: {
+                    url: '@Url.Action("GetGradeLevelTable", "GradeLevel")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    dataSrc: json => json.data || []
+                },
+                columns: [
+                    { data: "name", className: "text-center" },
+                    { data: "roomCount", className: "text-center" },
+                    {
+                        data: "id",
+                        className: "text-center",
+                        render: id => `
+                                        <button class="btn btn-default" onclick="UpdateGradeLevel('${id}')"><i class="bi bi-pencil-square"></i></button>
+                                    `
+                    }
+                ],
+                order: [[0, "asc"]],
+                paging: true,
+                pageLength: 10,
+                searching: true,
+                ordering: true,
+                responsive: true,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "ค้นหา...",
+                    paginate: {
+                        previous: "ก่อนหน้า",
+                        next: "ถัดไป"
+                    },
+                    zeroRecords: "ไม่พบข้อมูล",
+                    info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ",
+                    infoEmpty: "ไม่มีข้อมูล",
+                }
+            });
+
+            $("#txtSearch").keyup(function () {
+                gradeTable.search(this.value).draw();
+            });
+
+        });
+    </script>
+
+    <script src="~/js/gradelevel/_gradelevel.js" asp-append-version="true"></script>
+}

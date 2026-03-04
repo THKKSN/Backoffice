@@ -1,0 +1,43 @@
+﻿@using System.Globalization;
+@model BackOfficeLibrary.TeacherViewDetailModel
+
+@{
+    var _cultureEN = new CultureInfo("en-US");
+}
+
+<div id="UpdateTeacher" class="offcanvas offcanvas-info offcanvas-end mobile-offcanvas" tabindex="-1"
+    aria-labelledby="UpdateTeacherLabel">
+
+    <div class="offcanvas-body">
+
+        <div class="row mb-3">
+            <div class="col-7">
+                <h4 class="offcanvas-title">รายละเอียดข้อมูล</h4>
+            </div>
+            <div class="col-5 text-end">
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+        </div>
+
+
+        <div class="text-center">
+            <h5 class="heading-h5 mb-3">
+                ข้อมูลคุณครู
+            </h5>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <div class="form-group">
+                    <label></strong>@localize["Name"]</strong></label>
+                    <div >@Model.FullName</div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="form-group">
+                    <label></strong>@localize["Nick_Name"]</strong></label>
+                    <div >@Model.NickName</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,35 @@
+﻿@model BackOfficeLibrary.PreviousSchoolViewModel
+@{
+    var idx = ViewData["index"];
+}
+
+<div class="parent-block mb-4">
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="form-group">
+                <label>ชื่อโรงเรียน</label>
+                <input class="form-control" asp-for="SchoolName" />
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="form-group">
+                <label>จังหวัด</label>
+                <select class="form-control select2" asp-for="SchoolProvince_Id"
+                    asp-items="@(new SelectList(ViewBag.ProvincesList, "Value", "Text"))">
+                    <option value="">@localize["Select"]</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="form-group">
+                <label>ระดับชั้น</label>
+                <select class="form-control select2" asp-for="GradeLevel_Id"
+                    asp-items="@(new SelectList(ViewBag.GrandLevelList, "Value", "Text"))">
+                    <option value="">@localize["Select"]</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+</div>

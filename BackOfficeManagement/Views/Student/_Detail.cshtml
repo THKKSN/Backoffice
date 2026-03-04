@@ -1,0 +1,265 @@
+@using System.Globalization;
+@model BackOfficeLibrary.StudantViewModel
+
+@{
+    var _cultureEN = new CultureInfo("th-TH");
+}
+
+
+<div id="ViewStudent" class="offcanvas offcanvas-info offcanvas-end mobile-offcanvas" tabindex="-1"
+    aria-labelledby="ViewStudentLabel">
+
+    <div class="offcanvas-body">
+
+        <div class="row mb-3">
+            <div class="col-7">
+                <h4 id="StudentLabel" class="offcanvas-title">@localize["Student_Information"]</h4>
+            </div>
+            <div class="col-5 text-end">
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+
+            <div class="col-lg-12">
+
+                <div class="row g-3 align-items-start mt-3">
+
+                    <!-- รูป -->
+                    <div class="col-12 col-md-4 col-lg-3 text-center">
+                        @if (!string.IsNullOrEmpty(Model.AttachFile))
+                        {
+                            <img src="@Url.Content($"~/{Model.AttachFile}")" alt="Student Image" class="img-fluid shadow-lg"
+                                style="width:200px; height:auto;" style="object-fit:cover;" />
+                        }
+                        else
+                        {
+                            <img src="~/img/logo/logo-nongbua1_1.png" alt="No Image" class="img-fluid shadow-lg"
+                                style="width:200px; height:auto;" style="object-fit:cover;" />
+                        }
+                    </div>
+
+                    <!-- ข้อมูลหลัก -->
+                    <div class="col-12 col-md-8 col-lg-9">
+                        <div class="row g-3">
+
+                            <div class="col-6 col-lg-4">
+                                <small class="text-muted">@localize["Student_Id"]</small>
+                                <div class="fw-semibold">@Model.Student_Id</div>
+                            </div>
+
+                            @* <div class="col-6 col-lg-4">
+                                <small class="text-muted">@localize["Grade_Level"]</small>
+                                <div class="fw-semibold">@Model.GradeLevel_Room</div>
+                            </div> *@
+
+                            <div class="col-12 col-lg-4">
+                                <small class="text-muted">@localize["Name"]</small>
+                                <div class="fw-semibold">@Model.Student_Name</div>
+                            </div>
+
+                            <div class="col-6 col-lg-4">
+                                <small class="text-muted">@localize["Nick_Name"]</small>
+                                <div class="fw-semibold">@Model.NickName</div>
+                            </div>
+                            
+                            <div class="col-12 col-lg-4">
+                                <small class="text-muted">@localize["IDCard"]</small>
+                                <div class="fw-semibold">@Model.IDCard</div>
+                            </div>
+                                                        
+                            <div class="col-6 col-lg-4">
+                                <small class="text-muted">@localize["Date_Of_Birth"]</small>
+                                <div class="fw-semibold">@Model.DateOfBirth</div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <div class="row g-3">
+                            <div class="col-6 col-lg-3">
+                                <small class="text-muted">@localize["Nationality"]</small>
+                                <div class="fw-semibold">@Model.Nationality</div>
+                            </div>
+                             <div class="col-6 col-lg-3">
+                                <small class="text-muted">@localize["Religion"]</small>
+                                <div class="fw-semibold">@Model.Religion</div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <small class="text-muted">@localize["Age"]</small>
+                                <div class="fw-semibold">@Model.Age @localize["Year_Old"]</div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <small class="text-muted">ประเภทความพิการ</small>
+                                <div class="fw-semibold">@Model.DisabilityType</div>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-6 col-lg-3">
+                                <small class="text-muted">ส่วนสูง</small>
+                                <div class="fw-semibold">@Model.Height?.ToString("#,##0.00")</div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <small class="text-muted">น้ำหนัก</small>
+                                <div class="fw-semibold">@Model.Weight?.ToString("#,##0.00")</div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <small class="text-muted">วันที่เข้าการศึกษา</small>
+                                <div class="fw-semibold">@Model.StartDate</div>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-6 col-lg-3">
+                                <small class="text-muted">รหัสประจำบ้าน</small>
+                                <div class="fw-semibold">@Model.HouseRegNo</div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <small class="text-muted">@localize["Address"]</small>
+                                <div class="fw-semibold">@Model.Address</div>
+                            </div>
+                            <div class="col-lg-2">
+                                <small class="text-muted">@localize["Address_dsc"]</small>
+                                <div class="fw-semibold">@Model.Address_desc</div>
+                            </div>
+                            <div class="col-lg-2">
+                                <small class="text-muted">ซอย</small>
+                                <div class="fw-semibold">@Model.Soi</div>
+                            </div>
+                            <div class="col-lg-2">
+                                <small class="text-muted">ถนน</small>
+                                <div class="fw-semibold">@Model.Road</div>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-6 col-lg-3">
+                                <small class="text-muted">@localize["Subdistricts"]</small>
+                                <div class="fw-semibold">@Model.Subdistricts</div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <small class="text-muted">@localize["Districts"]</small>
+                                <div class="fw-semibold">@Model.Districts</div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <small class="text-muted">@localize["Provinces"]</small>
+                                <div class="fw-semibold">@Model.Provinces</div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <small class="text-muted">@localize["ZipCode"]</small>
+                                <div class="fw-semibold">@Model.ZipCode</div>
+                            </div>
+                        </div>  
+                </div>             
+            </div>
+            <hr class="mt-3"/>
+
+            @if (Model.PreviousSchool != null)
+            {
+                <div class="col-lg-12 mt-2">
+                    <h4 class="offcanvas-title">ข้อมูลโรงเรียนเดิม</h4>
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <small class="text-muted">ชื่อโรงเรียน</small>
+                            <div class="fw-semibold">@Model.PreviousSchool.SchoolName</div>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <small class="text-muted">จังหวัด</small>
+                            <div class="fw-semibold">@Model.PreviousSchool.SchoolProvince</div>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <small class="text-muted">ระดับชั้น</small>
+                            <div class="fw-semibold">@Model.PreviousSchool.GradeLevel</div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+            }
+
+            @if (Model.GradeHistories?.Any() == true)
+            {
+                <h4 class="offcanvas-title">@localize["Year_List"]</h4>
+                <table id="tblYearList" class="table table-sm table-hover">
+                    <thead>
+                        <tr class="text-center">
+                            <th>@localize["Year"]</th>
+                            <th>@localize["Term"]</th>
+                            <th>@localize["Grade_Level"]</th>
+                            <th>@localize["Status"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var h in Model.GradeHistories)
+                    {
+                        <tr class="@(h.IsCurrent ? "table-success fw-semibold" : "") text-center">
+                            <td>@h.SchoolYear</td>
+                            <td>@h.Term</td>
+                            <td>@h.GradeName / @h.RoomName</td>
+                            <td>@(h.IsCurrent ? "ปัจจุบัน" : "")</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+                <hr/>
+            }
+
+            @{
+                if (Model.Parents.Any())
+                {
+                    <div class="col-lg-12 mt-2">
+                        <h4 class="offcanvas-title">@localize["Parent_Information"]</h4>
+                        @foreach (var parent in Model.Parents)
+                        {
+                            <div class="row g-3">
+                                <div class="col-6 col-lg-3">
+                                    <small class="text-muted">@localize["Name"]</small>
+                                    <div class="fw-semibold">@($"{parent.PrefixParent}{parent.ContactFirstName} {parent.ContactLastName}")
+                                    </div>
+                                </div>
+                                <div class="col-6 col-lg-3">
+                                    <small class="text-muted">@localize["Relationship"]</small>
+                                    <div class="fw-semibold">@parent.Relationship</div>
+                                </div>
+                                <div class="col-6 col-lg-3">
+                                    <small class="text-muted">@localize["Date_Of_Birth"]</small>
+                                    <div class="fw-semibold">@parent.DateOfBirth</div>
+                                </div>
+                                <div class="col-lg-2">
+                                    <small class="text-muted">@localize["Age"]</small>
+                                    <div class="fw-semibold">@parent.Age</div>
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-6 col-lg-3">
+                                    <small class="text-muted">@localize["IDCard"]</small>
+                                    <div class="fw-semibold">@parent.IDCard</div>
+                                </div>
+                                <div class="col-6 col-lg-3">
+                                    <small class="text-muted">@localize["Contact_Phone"]</small>
+                                    <div class="fw-semibold">@parent.ContactPhone</div>
+                                </div>
+                                <div class="col-6 col-lg-3">
+                                    <small class="text-muted">@localize["Nationality"]</small>
+                                    <div class="fw-semibold">@Model.Nationality</div>
+                                </div>
+                                <div class="col-lg-2">
+                                    <small class="text-muted">@localize["Religion"]</small>
+                                    <div class="fw-semibold">@parent.Religion</div>
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-6 col-lg-3">
+                                    <small class="text-muted">อาชีพ</small>
+                                    <div class="fw-semibold">@parent.Occupation</div>
+                                </div>
+                                <div class="col-6 col-lg-3">
+                                    <small class="text-muted">@localize["Parent_Status"]</small>
+                                    <div class="fw-semibold">@parent.ParentStatus</div>
+                                </div>
+                            </div>
+                            <hr />
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+</div>

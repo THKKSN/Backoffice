@@ -1,0 +1,109 @@
+@using System.Globalization;
+@model BackOfficeLibrary.OverdueDTOModel
+@{
+    var _cultureEN = new CultureInfo("th-TH");
+}
+
+<div id="CreateOverdueFrom" class="offcanvas offcanvas-info offcanvas-end mobile-offcanvas" tabindex="-1"
+    aria-labelledby="CreateOverdueFromLabel">
+
+    <div class="offcanvas-body">
+
+        <div class="row mb-3">
+            <div class="col-7">
+                <h4 id="OverdueFormLabel" class="offcanvas-title">เพิ่มข้อมูลการติดตามการค้างบริจาค</h4>
+            </div>
+            <div class="col-5 text-end">
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+
+            <form id="OverdueForm" asp-controller="Overdue" asp-action="OverdueCreate" method="post"
+                enctype="multipart/form-data">
+                <div class="row mt-3">
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label class="form-label">
+                                @localize["Grade_Level"]
+                            </label>
+                            <select class="form-control select2" id="gradelevelSelect"
+                                asp-items="@(new SelectList(ViewBag.GrandLevelList, "Value", "Text"))"
+                                style="width: 100%;" required>
+                                <option value="">@localize["Select"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label>@localize["Student"]</label>
+                            <select id="studentId" class="form-control select2" asp-for="Student_Id"
+                                data-request-url-student="@Url.Action("GetStudentsByGrade", "Overdue")" required>
+                                <option value="">@localize["Select"]</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label class="form-label">
+                                @localize["Year"]
+                            </label>
+                            <select id="schoolYearSelect" class="form-control select2" asp-for="SchoolYear_Id"
+                                data-request-url-schoolyear="@Url.Action("GetSchoolYearByUUID", "Overdue")" required>
+                                <option value="">@localize["Select"]</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <table id="tableOverdue" class="table table-bordered table-hover" data-request-url="@Url.Action("GetOverdueDatatable", "Overdue")">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>@localize["Term"]</th>
+                                    <th class="text-end">@localize["Donated"]</th>
+                                    <th class="text-end">@localize["Outstanding"]</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label class="form-label">
+                                วิธีการติดตาม/วิธีการแจ้ง
+                            </label>
+                            <select class="form-control select2" id="statusSelect" asp-for="Status"
+                                asp-items="@(new SelectList(ViewBag.StatusList, "Value", "Text"))" style="width: 100%;"
+                                required>
+                                <option value="">@localize["Select"]</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label class="form-label">
+                                วันที่แจ้ง
+                            </label>
+                            <input type="date" class="form-control" asp-for="OverDueDate" required />
+                        </div>
+                    </div>
+
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-label">
+                                @localize["Description"]
+                            </label>
+                            <textarea class="form-control" asp-for="Description"></textarea>
+                        </div>
+                    </div>
+                </div>
+                 <div class="offcanvas-footer border-top p-3 text-end">
+                    <button type="submit" class="btn btn-primary m-1">
+                        @localize["Save"]
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

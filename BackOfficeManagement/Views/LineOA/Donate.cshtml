@@ -1,0 +1,177 @@
+@model BackOfficeLibrary.LineDonateViewModel
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+
+            <!-- Main Card -->
+            <!-- Header -->
+            <div class="text-center p-4" style="
+                    border-bottom: 1px solid rgba(0,123,255,0.12);
+                    background: linear-gradient(180deg,#eaf3ff,#ffffff);
+                    border-radius: 22px 22px 0 0;
+                ">
+                <h2 class="fw-bold mb-1" style="color:#007bff;">บริจาค</h2>
+                <h6 class="text-muted">ปีการศึกษา @Model.School_Year เทอม @Model.Term</h6>
+            </div>
+
+            <!-- Student Info Card -->
+            <div class="my-3 p-4 shadow-sm" style="
+                    background: linear-gradient(160deg,#ffffff,#f3f8ff);
+                    border-radius: 16px;
+                    border: 1px solid rgba(0,123,255,0.18);
+                ">
+                <h5 class="text-center fw-bold mb-3" style="color:#007bff;">ข้อมูลนักเรียน</h5>
+
+                <div class="fw-bold fs-5 text-center" style="color:#003f7f;">
+                    @Model.Prefix @Model.FirstName @Model.LastName
+                    <span style="color:#6c8fb7;">(@Model.NiickName)</span>
+                </div>
+
+                <div class="mt-3" style="font-size:15px; color:#4a6480;">
+                    <div class="d-flex justify-content-between py-1 border-bottom"
+                        style="border-color: rgba(0,123,255,0.12);">
+                        <span class="text-muted">ชั้นเรียน</span>
+                        <span class="fw-semibold">@Model.GradeLevel_Name / @Model.Room_Name</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between py-1 border-bottom"
+                        style="border-color: rgba(0,123,255,0.12);">
+                        <span class="text-muted">เลขบัตรประชาชน</span>
+                        <span class="fw-semibold">@Model.IDCard</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between py-1">
+                        <span class="text-muted">รหัสนักเรียน</span>
+                        <span class="fw-semibold">@Model.Code</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bank Info Card -->
+            <div class="my-4 p-4 text-center shadow-sm" style="
+                    background: linear-gradient(145deg,#ffffff,#eef7ff);
+                    border-radius: 16px;
+                    border: 1px solid rgba(0,123,255,0.25);
+                    color:#003f7f;
+                ">
+                <h5 class="fw-bold mb-3" style="color:#007bff;">บัญชีที่รับการบริจาค</h5>
+
+                <div class="text-uppercase small" style="letter-spacing:1px;color:#6c8fb7;">
+                    ธนาคาร
+                </div>
+
+                <img src="~/img/logo/krungthai-bank-logo.png" class="shadow-sm my-3" style="
+                            width:110px;
+                            border-radius:50%;
+                            border:2px solid rgba(0,123,255,0.3);
+                            padding:6px;
+                            background:#ffffff;
+                         ">
+
+                <div class="fw-bold fs-5 mb-3" style="color:#004b8d;">
+                    กรุงไทย (Krung Thai)
+                </div>
+
+                <div class="text-uppercase small" style="letter-spacing:1px;color:#6c8fb7;">
+                    เลขที่บัญชี
+                </div>
+
+                <div class="fw-bold fs-4 mb-3" style="
+                        color:#007bff;
+                        letter-spacing:3px;
+                        text-shadow:0 0 6px rgba(0,123,255,0.25);
+                    ">
+                    074-0-18626-4
+                </div>
+
+                <div class="text-uppercase small" style="letter-spacing:1px;color:#6c8fb7;">
+                    ชื่อบัญชี
+                </div>
+
+                <div class="fw-bold fs-4" style="
+                        color:#007bff;
+                        letter-spacing:3px;
+                        text-shadow:0 0 6px rgba(0,123,255,0.25);
+                    ">
+                    โรงเรียน มูลนิธิภูมิตะวันวิทยา
+                </div>
+            </div>
+            <div class="card shadow-lg border-0" style="
+                border-radius: 22px;
+                background: linear-gradient(180deg,#ffffff,#f7faff);
+            ">
+                <!-- Form -->
+                <form id="donateForm" class="p-4" asp-controller="LineOA" asp-action="Donate" method="post"
+                    enctype="multipart/form-data">
+
+                    <input type="hidden" asp-for="LineUserId" />
+                    <input type="hidden" asp-for="Uuid" />
+                    <input type="hidden" asp-for="Student_Id" />
+                    <input type="hidden" asp-for="School_Year_Id" />
+                    <input type="hidden" asp-for="Term_Id" />
+                    <input type="hidden" asp-for="GradeLevel_History_Id" />
+                    <input type="hidden" name="action" id="actionInput" value="donate" />
+
+                    <!-- Name -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">ชื่อผู้บริจาค</label>
+                        <input asp-for="Donate_Name" class="form-control shadow-sm" placeholder="โปรดระบุ" required />
+                        <span asp-validation-for="Donate_Name" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">ยอดที่ต้องการบริจาค</label>
+                        <input type="number" asp-for="DonateAmount" class="form-control shadow-sm" required />
+                        <span asp-validation-for="DonateAmount" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Date + Time -->
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">วันที่ทำรายการ</label>
+                            <input type="date" class="form-control shadow-sm" id="DonateDate" required />
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">เวลาที่ทำรายการ</label>
+                            <input type="time" class="form-control shadow-sm" id="DonateTime" required />
+                        </div>
+                    </div>
+
+                    <input type="hidden" asp-for="DonateDate" id="DonateDateTime" />
+
+                    <!-- Evidence -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">หลักฐานการบริจาค</label>
+                        <input type="file" class="form-control shadow-sm" name="EvidenceFile" accept="image/*"
+                            onchange="previewImage(event)" required />
+                        <div id="image-preview" class="mt-2"></div>
+                        <input type="hidden" id="ImageBase64" name="ImageBase64" /> 
+                        <input type="hidden" id="ImageExtension" name="ImageExtension" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm"
+                        style="background:#007bff; border-radius:10px;">
+                        ยืนยันการบริจาค
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="donateConfig" data-url="@Url.Action("GetDonateBalance", "LineOA")" data-student="@Model.Student_Id"
+    data-year="@Model.School_Year_Id">
+</div>
+<div id="urlDonate" data-request-url="@Url.Action("Donate", "LineOA")"></div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/line/_donate.js"></script>
+}

@@ -1,0 +1,110 @@
+﻿@model BackOfficeLibrary.OutstandingsByUuidVM
+@using System.Globalization;
+
+@{
+    var _cultureEN = new CultureInfo("th-TH");
+}
+
+<div id="Outstandings" class="offcanvas offcanvas-info offcanvas-end mobile-offcanvas" tabindex="-1"
+    aria-labelledby="OutstandingsLabel">
+    <div class="offcanvas-body mb-3">
+        <div class="row">
+            <div class="col-10">
+                <h3>@Model.Student.FullName</h3>
+            </div>
+            <div class="col-2 text-end">
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6 col-12">
+                <p>@localize["Student_Id"] : @Model.Student.Code</p>
+                <p>ระดับชั้นปัจจุบัน : @Model.Student.GradeLevel</p>
+            </div>
+            <div class="col-lg-6 col-12">
+                <p>วันที่เข้าการศึกษา : @Model.Student.StartDate</p>
+                @foreach (var yearGroup in Model.Outstandings.GroupBy(x => x.StudentYear))
+                {
+                    var totalRequired = yearGroup.Sum(x => x.TotalAmount);
+                    var totalPaid = yearGroup.Sum(x => x.DonateAmount);
+
+                    var outstanding = Math.Max(totalRequired - totalPaid, 0);
+                    var overpaid = Math.Max(totalPaid - totalRequired, 0);
+                    var gradeLevel = yearGroup.First().Grade_Level;
+                    var room = yearGroup.First().Room;
+
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-header fw-bold">
+                            <div class="row align-items-center text-center">
+
+                                <!-- ซ้าย -->
+                                <div class="col-6 col-lg-4 text-start pt-2">
+                                    @localize["Grade_Level"] : @gradeLevel / @room
+                                </div>
+
+                                <!-- กลาง -->
+                                <div class="col-6 col-lg-3 text-end pt-2">
+                                    ปีการศึกษา @yearGroup.Key
+                                </div>
+
+                                <!-- ขวา -->
+                                <div class="col-12 col-lg-5 text-center pt-2">
+                                    @if (outstanding > 0)
+                                    {
+                                        <span class="badge bg-danger fs-6">
+                                            ยอดค้างรวม :
+                                            @outstanding.ToString("#,##0.00")
+                                            @localize["Baht"]
+                                        </span>
+                                    }
+                                    else if (overpaid > 0)
+                                    {
+                                        <span class="badge bg-warning text-dark fs-6">
+                                            ยอดบริจาคเพิ่มรวม :
+                                            @overpaid.ToString("#,##0.00")
+                                            @localize["Baht"]
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success fs-6">
+                                            ชำระครบถ้วน
+                                        </span>
+                                    }
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <table id="tblOutstanding" class="table table-hover table-responesive text-nowrap align-middle">
+            <thead>
+                <tr>
+                    <th>@localize["Year"] / @localize["Term"]</th>
+                    <th class="text-end">ยอดที่ต้องจ่าย</th>
+                    <th class="text-end">ยอดที่จ่ายแล้ว</th>
+                    <th class="text-end">คงเหลือ</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var item in Model.Outstandings)
+                {
+                    <tr>
+                        <td>@item.StudentYear / @item.Term</td>
+                        <td class="text-end">@item.TotalAmount.ToString("#,##0.00")</td>
+                        <td class="text-end">@item.DonateAmount.ToString("#,##0.00")</td>
+                        <td class="text-end @(item.DonateAmount - item.TotalAmount >= 0 ? "text-success" : "text-danger")">
+                            @((item.DonateAmount - item.TotalAmount).ToString("#,##0.00"))
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>

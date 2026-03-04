@@ -1,0 +1,89 @@
+﻿@using Microsoft.AspNetCore.Identity;
+
+@{
+    ViewData["HeaderTitle"] = "Back office Management";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["HeaderTitle"]</title>
+    <link rel="icon" href="~/img/icon/Logo.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="~/lib/plugins/fontawesome-free/css/all.min.css">
+    <!-- overlayScrollbars -->
+    <link rel="stylesheet" href="~/lib/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="~/lib/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="~/lib/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <!-- daterange picker -->
+    <link rel="stylesheet" href="~/lib/plugins/daterangepicker/daterangepicker.css">
+    <!-- Tempusdominus Bbootstrap 4 -->
+    <link rel="stylesheet" href="~/lib/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="~/lib/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="~/lib/plugins/toastr/toastr.min.css">
+    <link rel="stylesheet" href="~/lib/plugins/jquery-ui/jquery-ui.css" />
+    <!-- DataTables -->
+    <link rel="stylesheet" href="~/lib/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/lib/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/lib/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/lib/dist/css/adminlte.min.css">
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/BackOfficeManagement.styles.css" asp-append-version="true" />
+</head>
+
+<body>
+    <div class="container" style="padding-bottom: 1.5rem;">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer footer-color fixed-bottom py-2" style="line-height: 1.6; z-index: 1010;">
+        <div class="container">
+            <div
+                class="d-flex flex-column flex-sm-row justify-content-between align-items-center text-center text-sm-start">
+                <div class="mb-2 mb-sm-0">
+                    <strong class="text-footer-detail-color" style="font-size: 14px;">
+                        Copyright &copy; 2025
+                    </strong>
+                    <a class="link-footer d-block d-sm-inline" asp-area="" asp-controller="Account" asp-action="Login"
+                        style="font-size: 14px;">
+                        Title 
+                    </a>
+                    <span class="text-footer-detail-color d-block d-sm-inline" style="font-size: 14px;">
+                        All rights reserved.
+                    </span>
+                </div>
+
+                <div class="text-footer-detail-color" style="font-size: 14px;">
+                    <strong>Version</strong> 1.0.0
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Select2 -->
+    <script src="~/lib/plugins/select2/js/select2.full.min.js"></script>
+
+    <script src="~/lib/dist/js/adminlte.js"></script>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

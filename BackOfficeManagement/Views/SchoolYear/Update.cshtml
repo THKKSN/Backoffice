@@ -1,0 +1,104 @@
+@model BackOfficeLibrary.SchoolYearTermViewModel
+<style>
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 45px;
+        height: 22px;
+    }
+
+    .switch input {
+        display: none;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 22px;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked+.slider {
+        background-color: #4CAF50;
+    }
+
+    input:checked+.slider:before {
+        transform: translateX(22px);
+    }
+</style>
+<div id="UpdateSchoolYear" class="offcanvas offcanvas-end mobile-offcanvas" tabindex="-1">
+    <div class="offcanvas-body">
+        <div class="row">
+<div class="col-7">
+        <h4 class="mb-3">แก้ไขข้อมูลปีการศึกษา</h4>
+        </div>
+
+        <div class="col-5 text-end">
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        </div>
+        <form asp-action="UpdateSchoolYear" method="post">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="SchoolYearId" />
+
+            <div class="mb-3">
+                <label>@localize["Year"]</label>
+                <input asp-for="SchoolYear" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                @localize["Save"]
+            </button>
+        </form>
+
+        <hr class="my-4" />
+        <h4 class="mb-3">@localize["Term"]</h4>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>@localize["Term"]</th>
+                    <th>สถานะ</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model.Terms)
+                {
+                    <tr>
+                        <td>@t.Term</td>
+                        <td>
+                            <label class="switch">
+                                <input type="checkbox"
+                                       class="switch-term-status"
+                                       data-id="@t.TermId"
+                                       @(t.IsActive == true ? "checked" : "") />
+                                <span class="slider"></span>
+                            </label>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+<div class="urlDefault" data-request-url="@Url.Action("", "SchoolYear")"></div>

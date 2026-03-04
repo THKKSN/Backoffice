@@ -1,0 +1,257 @@
+﻿@model BackOfficeLibrary.DonateInfoViewModel
+@using System.Globalization;
+
+@{
+    var _cultureEN = new CultureInfo("th-TH");
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-7 col-12">
+                <h3>
+                    ข้อมูลบริจาค
+                </h3>
+            </div>
+            <dsiv class="col-lg-5 col-12 text-end">
+                <div class="d-flex flex-column flex-lg-row justify-content-center justify-content-lg-end gap-2">
+                    <button class="btn btn-primary" type="button" onclick="Outstandings('@Model.UUID')">
+                        ดูยอดค้าง
+                    </button>
+                </div>
+            </dsiv>
+        </div>
+    </div>
+</div>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card" style="box-shadow: none; border: 1px solid #DEE2E6 !important;">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h5>
+                                @localize["Student_Id"] @Model.Code
+                            </h5>
+                            <h5>
+                                @localize["FullName"] @Model.FullName
+                            </h5>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <table id="tblDonateInfo" class="table table-hover text-nowrap" style="width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">
+                                                วันที่บริจาค
+                                            </th>
+                                            <th class="text-center">
+                                                @localize["Grade_Level"]
+                                            </th>
+                                            <th class="text-center">
+                                                @localize["Term"]
+
+                                            </th>
+                                            <th class="text-center">
+                                                @localize["Year"]
+
+                                            </th>
+                                            <th class="text-center">
+                                                ช่องทางการชำระเงิน
+                                            </th>
+                                            <th class="text-end">
+                                                จำนวน (บาท)
+                                            </th>
+                                            <th class="text-center">
+                                                &nbsp;
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Outstandings"></div>
+<div id="DonateDetail"></div>
+<div id="urlDefualt" data-request-url="@Url.Action("", "Donate")"></div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        let currentRequest = null;
+        if ($.fn.DataTable.isDataTable('#tblDonateInfo')) {
+            $('#tblDonateInfo').DataTable().clear().draw().destroy();
+        }
+        $('#tblDonateInfo').DataTable({
+            /* "dom": 'Blfrtip',
+            buttons: [
+                {
+                    orientation: 'portrait',
+                    pageSize: 'LEGAL',
+                    extend: 'excel',
+                    footer: true,
+                    className: 'btn btn-success'
+ 
+                }
+            ], */
+            ajax: {
+                url: '@Url.Action("GetDonateDetailListDataTable", "Donate", new { area = "" })',
+                type: 'POST',
+                contentType: 'application/json',
+                data: function (d) {
+
+                    const queryData = {
+                        Draw: 1,
+                        Start: 0,
+                        Length: 0,
+                        Name: "",
+                        Search: "",
+                        SearchDate: "",
+                        StartDate: "",
+                        EndDate: "",
+                        SortColumn: "",
+                        SortOrder: "",
+                        FilterBy: "",
+                        uuid: "@Model.UUID"
+                    };
+                    return JSON.stringify(queryData); // ส่งข้อมูลในรูปแบบ JSON
+                },
+                dataSrc: function (json) {
+                    return json.data || []; // รับข้อมูลจาก API และใช้ข้อมูลที่ส่งกลับมา
+                },
+                beforeSend: function (jqXHR, settings) {
+                    // เก็บคำขอ AJAX
+                    currentRequest = jqXHR;
+                },
+                complete: function (xhr, status) {
+                    // หลังจากที่คำขอเสร็จสิ้น
+                    currentRequest = null;  // รีเซ็ตตัวแปรคำขอ
+                }, error: function (xhr, status, error) {
+                    if (status === 'abort') {
+                        console.log('คำขอถูกยกเลิก');
+                    } else {
+                        console.log('เกิดข้อผิดพลาด: ' + error);
+                    }
+                }
+            },
+            "columns": [
+                {
+                    data: "donateDate",
+                    className: "text-center",
+                    render: function (data, type, row) {
+                        if (type === "display") {
+                            return moment(data).format("DD/MM/YYYY");
+                        }
+                        if (type === 'filter') {
+                            return moment(data).format("DD/MM/YYYY"); // ให้ search แบบนี้
+                        }
+                        return moment(data).format("YYYYMMDD"); // ใช้รูปแบบ YYYYMMDD สำหรับ sorting
+                    },
+                },
+                {
+                    data: "gradeLevel",
+                    className: "text-center",
+                },
+                {
+                    data: "term",
+                    className: "text-center",
+                },
+                {
+                    data: "studyYear",
+                    className: "text-center",
+                },
+                {
+                    data: "donateChannel",
+                    className: "text-center",
+                },
+                {
+                    data: "amount",
+                    className: "text-end",
+                    render: function (data, type, row) {
+                        return data.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    }
+                },
+                {
+                    data: null,
+                    orderable: false,
+                    className: "text-center",
+                    render: function (data, type, row) {
+                        // base URL ที่สร้างจาก Razor
+                        var url = row.id;
+
+                        return `<button class="btn btn-default" type="button" onclick="DonateDetail(${url})"><i class="bi bi-eye"></i></button>`;
+                    }
+                }
+            ],
+            /* "rowGroup": {
+            dataSrc: function (row) {
+                  return moment(row.donateDate).format('DD/MM/YYYY');// จัดกลุ่มตามคอลัมน์วันที่
+              },
+              "startRender": function (rows, group) {
+                  var $td = $('<td>').addClass('bg-transparent text-primary').text(group);
+                  return $('<tr>').append($td);
+              } 
+          },*/
+            "deferRender": true,
+            "paging": true, // เปิดใช้งาน Pagination
+            "lengthChange": true, // เปิดการเลือกจำนวนข้อมูลที่จะแสดงต่อหน้า
+            "searching": false, // ปิดการใช้งานช่องค้นหาข้อมูล
+            "ordering": true, // เปิดใช้งานการเรียงลำดับข้อมูลในแต่ละคอลัมน์
+            "info": true, // แสดงข้อมูลเกี่ยวกับจำนวนแถวที่แสดงในตาราง เช่น "Showing 1 to 10 of 50 entries"
+            "autoWidth": false, // ปิดการตั้งค่าความกว้างคอลัมน์อัตโนมัติ
+            "responsive": false, // ปิดการใช้งาน Responsive (เมื่อปิดแล้วจะไม่แสดงปุ่ม "+" บนหน้าจอที่ย่อขนาดลง)
+            "order": [[0, 'desc']], // ตั้งค่าเริ่มต้นในการเรียงลำดับข้อมูลที่คอลัมน์แรก
+            //"pageLength": 20, // กำหนดจำนวนรายการข้อมูลต่อหน้า
+            "searchDelay": 500,
+            "lengthMenu": [
+                [20, 50, 100, 500, -1],
+                [20, 50, 100, 500, "All"],
+            ],
+            "language": { // กำหนดข้อความหรือไอคอนที่จะแสดงสำหรับปุ่มนำทางการแบ่งหน้า
+                "paginate": {
+                    "previous": "&laquo;",
+                    "next": "&raquo;"
+                }
+            },
+            "drawCallback": function () { // ฟังก์ชันที่ถูกเรียกทุกครั้งที่ตารางมีการวาดใหม่ เช่น เมื่อเปลี่ยนหน้า เรียงลำดับ หรือกรองข้อมูล
+                /*$('#tblDonate thead th').find('i').remove(); // Remove existing icons*/
+                /* Add Icon */
+                /* $('#tblDonate thead th').each(function () {
+                    if ($(this).hasClass('sorting_asc')) { $(this).append('<i class="fa fa-angle-down"></i>'); }
+                    else if ($(this).hasClass('sorting_desc')) { $(this).append('<i class="fa fa-angle-up" style=""></i>'); }
+                    else if ($(this).hasClass('sorting_disabled')) { $(this).append('<span>&nbsp;</span>'); }
+                    else { $(this).append('<i class="fa fa-angle-up" style="opacity: 0.5;"></i>'); } // Default icons
+                });*/
+
+                var tableEl = document.getElementById("tblDonateInfo");
+
+                // ตรวจว่ามี div ครอบอยู่แล้วหรือยัง
+                if (!tableEl.parentElement.classList.contains("table-responsive")) {
+                    var wrapper = document.createElement("div");
+                    wrapper.className = "table-responsive";
+
+                    // ย้าย table เข้า div
+                    tableEl.parentNode.insertBefore(wrapper, tableEl);
+                    wrapper.appendChild(tableEl);
+                }
+            }
+        });
+    </script>
+
+
+
+    <script src="~/js/donate/_detail.js" asp-append-version="true"></script>
+}

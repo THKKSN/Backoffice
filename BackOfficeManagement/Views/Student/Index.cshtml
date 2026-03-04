@@ -1,0 +1,263 @@
+﻿@model List<BackOfficeLibrary.StudantViewModel>
+@using System.Globalization;
+
+@{
+    var _cultureEN = new CultureInfo("th-TH");
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            
+            <div class="col-lg-6 col-12 mb-3 mb-lg-0">
+                <h3 class="text-lg-start">
+                    @localize["Student_List"]
+                </h3>
+            </div>
+
+            <div class="col-lg-6 col-12">
+                <div class="d-flex flex-column flex-lg-row justify-content-center justify-content-lg-end gap-2">
+                    <button class="btn btn-outline-secondary px-4"
+                            type="button"
+                            onclick="updateStatus()">
+                        @localize["Update_Status_Student"]
+                    </button>
+                    <button class="btn btn-warning text-dark px-4"
+                            type="button"
+                            onclick="upgradeStudent()">
+                        @localize["Upgrade_Student"]
+                    </button>
+                    <button class="btn btn-primary px-4 fw-semibold"
+                            type="button"
+                            onclick="CreateStudent()">
+                        @localize["Add_New_Student"]
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+
+                <div class="card" style="box-shadow:none; border:1px solid #DEE2E6 !important;">
+                    <div class="card-body">
+
+                            <!-- Filter Section -->
+                            <div class="row filter-bar d-flex justify-content-between align-items-center">
+
+                                <!-- Search -->
+                                <div class="row filter-bar align-items-center">
+                                    <div class="col-lg-3 col-12">
+                                        <label>@localize["Search"]</label>
+                                        <input type="text" class="form-control" id="searchInput"
+                                            placeholder="ค้นหาด้วยรหัสนักเรียน, ชื่อ-นามสกุล" />
+                                    </div>
+
+                                    <div class="col-lg-3">
+                                    </div>
+
+                                    <div class="col-lg-2 col-12">
+                                        <label>@localize["Grade_Level"]</label>
+                                        <select class="form-control select2" id="filterGrade">
+                                            <option value="">@localize["Select_All"]</option>
+                                            @foreach (var grade in Model.Select(x => x.Grade_Level_Name).Distinct())
+                                            {
+                                                <option value="@grade">@grade</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="col-lg-4 col-12">
+                                        <label>@localize["Status"]</label>
+                                        <select class="form-control select2"
+                                                id="filterStatus"
+                                                multiple="multiple" >
+                                            @foreach (var status in Model.Select(x => x.Student_Status_Name).Distinct())
+                                            {
+                                                <option value="@status">@status</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Table -->
+                            <div class="row mt-3">
+                                <div class="col-12">
+
+                                    <table id="tblStudent" class="table table-hover text-nowrap" style="width:100%;">
+
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center">@localize["Student_Id"]</th>
+                                                <th class="text-center">@localize["FirstName"] - @localize["LastName"]
+                                                </th>
+                                                <th class="text-center">@localize["Grade_Level"]</th>
+                                                <th class="text-center">@localize["Status"]</th>
+                                                <th class="text-center">&nbsp;</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                <tr>
+                                                    <td class="text-center">@item.Student_Id</td>
+
+                                                    <td>@item.Student_Name</td>
+
+                                                    <td class="text-center">
+                                                        @item.Grade_Level_Name / @item.Room_Name
+                                                    </td>
+
+                                                    @{
+                                                        var statusClass = $"status-{item.Student_Status_Id}";
+                                                    }
+                                                    <td class="text-center">
+                                                        <span class="badge rounded-pill px-3 py-2 @statusClass">
+                                                            @item.Student_Status_Name
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <button class="btn btn-default"
+                                                            onclick="ViewStudent('@item.Id')"><i class="bi bi-eye"></i></button>
+                                                        <button class="btn btn-default"
+                                                            onclick="UpdateStudent('@item.Id')"><i class="bi bi-pencil-square"></i></button>
+                                                        <button class="btn btn-danger"
+                                                            onclick="DeleteStudent('@item.Id')"><i class="bi bi-trash"></i></button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+
+                                    </table>
+
+                                </div>
+                            </div>
+
+                    </div> <!-- card-body -->
+                </div> <!-- card -->
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="ViewStudent"></div>
+<div id="CreateStudent"></div>
+<div id="UpdateStudent"></div>
+<div id="updateStatus"></div>
+<div id="UpgradeStudent"></div>
+
+<div id="urlDefualt" data-request-url="@Url.Action("", "Student")"></div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+
+        var statusText = "@localize["Status"]";
+        $(function () {
+
+            const table = $('#tblStudent').DataTable({
+                deferRender: true,
+                paging: true, // เปิดใช้งาน Pagination
+                lengthChange: true, // เปิดการเลือกจำนวนข้อมูลที่จะแสดงต่อหน้า
+                searching: true, // ปิดการใช้งานช่องค้นหาข้อมูล
+                ordering: true, // เปิดใช้งานการเรียงลำดับข้อมูลในแต่ละคอลัมน์
+                info: true, // แสดงข้อมูลเกี่ยวกับจำนวนแถวที่แสดงในตาราง เช่น "Showing 1 to 10 of 50 entries"
+                autoWidth: false, // ปิดการตั้งค่าความกว้างคอลัมน์อัตโนมัติ
+                responsive: false, // ปิดการใช้งาน Responsive (เมื่อปิดแล้วจะไม่แสดงปุ่ม "+" บนหน้าจอที่ย่อขนาดลง)
+                columnDefs: [
+                    { targets: 4, orderable: false }
+                ],
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "ค้นหา...",
+                    paginate: {
+                        previous: "ก่อนหน้า",
+                        next: "ถัดไป"
+                    },
+                    zeroRecords: "ไม่พบข้อมูล",
+                    info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ",
+                    infoEmpty: "ไม่มีข้อมูล",
+                },
+                dom: 'lrtip',
+                drawCallback: function () { // ฟังก์ชันที่ถูกเรียกทุกครั้งที่ตารางมีการวาดใหม่ เช่น เมื่อเปลี่ยนหน้า เรียงลำดับ หรือกรองข้อมูล
+
+                var tableEl = document.getElementById("tblStudent");
+
+                // ตรวจว่ามี div ครอบอยู่แล้วหรือยัง
+                if (!tableEl.parentElement.classList.contains("table-responsive")) {
+                    var wrapper = document.createElement("div");
+                    wrapper.className = "table-responsive";
+
+                    // ย้าย table เข้า div
+                    tableEl.parentNode.insertBefore(wrapper, tableEl);
+                    wrapper.appendChild(tableEl);
+                }
+                }
+            });
+
+            $('#searchInput').on('keyup', function () {
+                table.search(this.value).draw();
+            });
+
+            // Filter Grade
+            $('#filterGrade').on('change', function () {
+                var value = this.value;
+                table.column(2).search(value).draw();
+            });
+
+            // init select2
+            $('#filterStatus').select2({
+                placeholder: statusText,
+                allowClear: true,
+                width: '100%'
+            });
+
+            // 👉 custom filter
+            $.fn.dataTable.ext.search.push(function (settings, data) {
+
+                var selectedStatuses = $('#filterStatus').val(); // array
+                var status = data[3].trim(); // column Status
+
+                if (!selectedStatuses || selectedStatuses.length === 0) {
+                    return false;
+                }
+
+                return selectedStatuses.includes(status);
+            });
+
+            $('#filterStatus').on('change', function () {
+
+                var value = $(this).val();
+
+                if (!value || value.length === 0) {
+                    // ต้อง set เป็น null ไม่ใช่ []
+                    $(this).val(null).trigger('change.select2');
+                }
+
+                table.draw();
+            });
+
+            // 👉 default = เลือกทั้งหมด
+            var allStatuses = $('#filterStatus option').map(function () {
+                return $(this).val();
+            }).get();
+
+            $('#filterStatus').val(allStatuses).trigger('change');
+        });
+    </script>
+
+    <script src="~/js/student/_student.js" asp-append-version="true"></script>
+}

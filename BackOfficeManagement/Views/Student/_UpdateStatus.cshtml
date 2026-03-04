@@ -1,0 +1,236 @@
+@using System.Globalization;
+@model BackOfficeLibrary.StudentDTOModel
+
+@{
+    var _cultureEN = new CultureInfo("th-TH");
+}
+
+<div id="UpdateStatus" class="offcanvas offcanvas-info offcanvas-end mobile-offcanvas" tabindex="-1"
+    aria-labelledby="UpdateStatusLabel">
+
+    <div class="offcanvas-body">
+
+        <div class="row mb-3">
+            <div class="col-7">
+                <h4 id="StatusLabel" class="offcanvas-title">@localize["Update_Status_Student"]</h4>
+            </div>
+            <div class="col-5 text-end">
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <form id="UpdateStatusForm" asp-controller="Student" asp-action="UpdateStatus" method="post"
+                enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-4">
+                        <label>@localize["Grade_Level"]</label>
+                        <select id="GradeLevel_Id_update_status" class="form-control select2" asp-for="GradeLevel_Id"
+                            asp-items="@(new SelectList(ViewBag.GrandLevelList, "Value", "Text"))"
+                            data-request-url-base="@Url.Action("", "Student")">
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <table class="table table-bordered mt-3" id="tableStudent">
+                        <thead>
+                            <tr>
+                                <th width="15%">
+                                    <input type="checkbox" id="selectAllStatus" /> @localize["Select_All"]
+                                </th>
+                                <th width="20%">@localize["Student_Id"]</th>
+                                <th width="35%">@localize["FullName"]</th>
+                                <th width="10%">@localize["Room"]</th>
+                                <th class="text-center">@localize["Status"]</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4">
+                        <label>@localize["New_Status"]</label>
+                        <select id="Status" class="form-control select2" asp-for="Status"
+                            asp-items="@(new SelectList(ViewBag.StatusList, "Value", "Text"))"
+                            data-request-url-base="@Url.Action("", "Student")">
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="offcanvas-footer border-top p-3 text-end">
+                    <button type="button" id="btnUpgrade" class="btn btn-primary">
+                        <i class="fa fa-arrow-up me-2"></i> Update status
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="urlDefualt" data-request-url="@Url.Action("", "Student")"></div>
+
+<script>
+    $(function () {
+        $('#UpdateStatus').find('select.select2').each(function () {
+            // ถ้า select2 ถูก init อยู่แล้ว ให้ destroy ก่อน
+            if ($(this).data('select2')) {
+                $(this).select2('destroy');
+            }
+            // init ใหม่
+            $(this).select2({
+                width: "100%",
+                dropdownParent: $(this).parent(),
+            });
+        });
+
+        let tableStudent;
+
+        $('#GradeLevel_Id_update_status').on('change', function () {
+
+            let gradeId = $(this).val();
+            if (!gradeId) return;
+
+            let baseUrl = $('#urlDefualt').data('request-url');
+
+            // ถ้ามี DataTable อยู่แล้ว → destroy ก่อน
+            if ($.fn.DataTable.isDataTable('#tableStudent')) {
+                tableStudent.clear().destroy();
+                $('#tableStudent tbody').empty();
+            }
+
+            tableStudent = $('#tableStudent').DataTable({
+                processing: true,
+                searching: false,
+                paging: true,
+                ordering: true,
+                order: [
+                    [3, 'asc'], 
+                    [1, 'asc'] 
+                ],
+                ajax: {
+                    url: baseUrl + '/GetStudentsByGrade',
+                    type: 'GET',
+                    data: {
+                        gradeLevelId: gradeId
+                    },
+                    dataSrc: ''
+                },
+                columns: [
+                    {
+                        data: 'studentId',
+                        orderable: false,
+                        className: 'text-center',
+                        render: function (data) {
+                            return `
+                    <input type="checkbox"
+                           class="student-checkbox"
+                           value="${data}">
+                `;
+                        }
+                    },
+                    {
+                        data: 'code',
+                        className: 'text-center',
+                    },
+                    { data: 'fullName' },
+                    {
+                        data: 'roomName',
+                        className: 'text-center',
+                    },
+                    {
+                        data: null,
+                        className: 'text-center',
+                        render: function (data) {
+                            let statusClass = `status-${data.studentStatusId}`;
+                            return `
+                    <span class="badge rounded-pill px-3 py-2 ${statusClass}">
+                        ${data.statusName}
+                    </span>
+                `;
+                        }
+                    }
+                ],
+                drawCallback: function () {
+                    $('#selectAllStatus').prop('checked', false);
+                },
+                language: {
+                    emptyTable: "ไม่พบนักเรียนในชั้นปีนี้"
+                }
+            });
+
+        });
+
+        $('#selectAllStatus').on('change', function () {
+            let isChecked = this.checked;
+            $('.student-checkbox', tableStudent.rows().nodes())
+                .prop('checked', isChecked);
+        });
+
+        $('#btnUpgrade').on('click', function () {
+
+            let studentIds = [];
+
+            $('.student-checkbox:checked').each(function () {
+                studentIds.push($(this).val());
+            });
+
+            if (studentIds.length === 0) {
+                Swal.fire('แจ้งเตือน', 'กรุณาเลือกนักเรียนอย่างน้อย 1 คน', 'warning');
+                return;
+            }
+
+            let status = $('#Status').val();
+            if (!status) {
+                Swal.fire('แจ้งเตือน', 'กรุณาเลือกสถานะใหม่', 'warning');
+                return;
+            }
+
+            let payload = {
+                studentIds: studentIds,
+                status: parseInt(status)
+            };
+
+            Swal.fire({
+                title: 'ยืนยันการทำรายการ',
+                text: 'คุณต้องการยืนยันการแก้ไขสถานะนักเรียนใช่หรือไม่ ?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'ยืนยัน',
+                cancelButtonText: 'ยกเลิก',
+                reverseButtons: true
+            }).then((result) => {
+
+                if (!result.isConfirmed) return;
+
+                $.ajax({
+                    url: $('#UpdateStatusForm').attr('action'),
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(payload),
+                    success: function () {
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'สำเร็จ',
+                            text: 'แก้ไขสถานะนักเรียนเรียบร้อยแล้ว'
+                        }).then(() => {
+
+                            const offcanvasEl = document.getElementById('UpdateStatus');
+                            const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl);
+                            offcanvas.hide();
+
+                            $('#tableStudent').DataTable().ajax.reload(null, false);
+                        });
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'เกิดข้อผิดพลาด',
+                            text: xhr.responseText || 'ไม่สามารถอัปเดตข้อมูลได้'
+                        });
+                    }
+                });
+            });
+        });
+    });
+</script>

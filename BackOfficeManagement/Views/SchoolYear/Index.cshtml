@@ -1,0 +1,144 @@
+﻿@model List<BackOfficeLibrary.SchoolYearViewModel>
+@using System.Globalization;
+
+@{
+    var _cultureEN = new CultureInfo("en-US");
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-7">
+                <h3>
+                    @localize["Year"]
+                </h3>
+            </div>
+            <div class="col-lg-5 text-end">
+                <div class="d-flex flex-column flex-lg-row justify-content-center justify-content-lg-end gap-2">
+                    <button class="btn btn-primary" type="button" onclick="CreateShcoolYear()">
+                        @localize["btnCreate"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card" style="box-shadow: none; border: 1px solid #DEE2E6 !important;">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="col-3">
+                                        @* <div class="form-group">
+                                            <label class="font-weight-normal"
+                                                style="font-size: 16px; color: #869099 !important">
+                                                @localize["Search"]
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text input-search"
+                                                    style="border-right: none !important;">
+                                                    <i class="fas fa-search icon-search"></i>
+                                                </span>
+                                                <input class="form-control input-search" type="search"
+                                                    style="box-shadow: none !important; border-left: none !important;" />
+                                            </div>
+                                        </div> *@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <table id="tblShcoolYear" class="table table-hover text-nowrap" style="width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center"
+                                                style="border-bottom: 2px solid #DEE2E6 !important; border-right: 1px solid #DEE2E6 !important;">
+                                                @localize["Year"]
+                                            </th>
+                                            <th class="text-center"
+                                                style="border-bottom: 2px solid #DEE2E6 !important;">
+                                                &nbsp;
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.Any())
+                                        {
+                                            foreach (var item in Model)
+                                            {
+                                                <tr>
+                                                    <td class="text-center">
+                                                        @item.Name
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button class="btn btn-default" type="button"
+                                                            onclick="ViewShcoolYear('@item.Id')"><i
+                                                                class="bi bi-eye"></i></button>
+                                                        <button class="btn btn-default" type="button"
+                                                            onclick="UpdateShcoolYear('@item.Id')"><i
+                                                                class="bi bi-pencil-square"></i></button>
+                                                        @* <button class="btn btn-danger" type="button" onclick="DeleteShcoolYear('@item.Id')">Delete</button> *@
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ViewShcoolYear"></div>
+<div id="UpdateShcoolYear"></div>
+<div id="CreateShcoolYear"></div>
+
+<div id="urlDefualt" data-request-url="@Url.Action("", "SchoolYear")"></div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            let table = $("#tblShcoolYear").DataTable({
+                   paging: true, // เปิดใช้งาน Pagination
+                lengthChange: true, // เปิดการเลือกจำนวนข้อมูลที่จะแสดงต่อหน้า
+                searching: false, // ปิดการใช้งานช่องค้นหาข้อมูล
+                ordering: true, // เปิดใช้งานการเรียงลำดับข้อมูลในแต่ละคอลัมน์
+                info: true, // แสดงข้อมูลเกี่ยวกับจำนวนแถวที่แสดงในตาราง เช่น "Showing 1 to 10 of 50 entries"
+                autoWidth: false, // ปิดการตั้งค่าความกว้างคอลัมน์อัตโนมัติ
+                responsive: false, // ปิดการใช้งาน Responsive (เมื่อปิดแล้วจะไม่แสดงปุ่ม "+" บนหน้าจอที่ย่อขนาดลง)
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "ค้นหา...",
+                    paginate: {
+                        previous: "ก่อนหน้า",
+                        next: "ถัดไป"
+                    },
+                    zeroRecords: "ไม่พบข้อมูล",
+                    info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ",
+                    infoEmpty: "ไม่มีข้อมูล",
+                },
+                order: [[0, 'desc']]
+            });
+
+            // ผูก search bar ด้านบนให้ทำงานร่วมกับ DataTable
+            $(".input-search").on("keyup", function () {
+                table.search(this.value).draw();
+            });
+        });
+    </script>
+
+    <script src="~/js/schoolyear/_schoolyear.js" asp-append-version="true"></script>
+}

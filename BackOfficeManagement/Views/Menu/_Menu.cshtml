@@ -1,0 +1,142 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localize
+@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<BackOfficeManagement.Data.ApplicationUser> signInManager;
+
+@inject IConfiguration Configuration
+@using System.Globalization
+
+@{
+    var routeValues = ViewContext.RouteData.Values;
+    var area = routeValues["area"];
+    var controller = routeValues["controller"];
+    var action = routeValues["action"];
+}
+
+<nav id="sidebar" style="padding-top: 0.5rem !important;">
+    <ul class="nav-child-indent nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+        @if (signInManager.IsSignedIn(User))
+        {
+            <li class="nav-item">
+                <a class="nav-link text-white @(controller?.ToString() == "Dashboard" ? "active" : "")" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-easel3-fill"></i>
+                    <p>
+                        @localize["Dashboard"]
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white @(controller?.ToString() == "Donate" ? "active" : "")" asp-controller="Donate" asp-action="Index">
+                    <i class="bi bi-table"></i>
+                    <p>
+                        @localize["Donate"]
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white @(controller?.ToString() == "Overdue" ? "active" : "")" asp-controller="Overdue" asp-action="Index">
+                    <i class="bi bi-table"></i>
+                    <p>
+                        @localize["Outstanding_Record"]
+                    </p>
+                </a>
+            </li>
+            <li class="nav-header">
+                <hr class="mt-1 mb-1" style="border-top: 2px solid #FFF;" />
+            </li>
+            <li class="nav-item @(
+                                controller?.ToString() == "Student"
+                                || controller?.ToString() == "Teacher"
+                                ? "menu-open" : "")">
+                <a class="nav-link text-white" href="#">
+                    <i class="nav-icon bi bi-gear-fill"></i>
+                    <p>
+                        @localize["Main_Profile"]
+                        <i class="right fas fa-angle-right mt-1"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(controller?.ToString() == "Student" ? "active" : "")" asp-controller="Student"
+                                   asp-action="Index">
+                            <i class="bi bi-person-lines-fill"></i>
+                            <p>
+                                @localize["Student_List"]
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(controller?.ToString() == "Teacher" ? "active" : "")" asp-controller="Teacher"
+                           asp-action="Index">
+                            <i class="bi bi-person-lines-fill"></i>
+                            <p>
+                                @localize["Teacher_List"]
+                            </p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-header">
+                <hr class="mt-1 mb-1" style="border-top: 2px solid #FFF;" />
+            </li>
+            <li class="nav-item @(
+                                controller?.ToString() == "SchoolYear"
+                                || controller?.ToString() == "GradeLevel"
+                                || controller?.ToString() == "DonateSettings"
+                                || controller?.ToString() == "Room"
+                                ? "menu-open" : "")">
+                <a class="nav-link text-white" href="#">
+                    <i class="nav-icon bi bi-gear-fill"></i>
+                    <p>
+                        @localize["Settings"]
+                        <i class="right fas fa-angle-right mt-1"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(
+                            controller?.ToString() == "SchoolYear" 
+                            ? "active" : "")" asp-controller="SchoolYear"
+                           asp-action="Index">
+                            <i class="bi bi-list-ul"></i>
+                            <p>
+                                @localize["Year"]
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(
+                            controller?.ToString() == "GradeLevel"
+                            ? "active" : "")" asp-controller="GradeLevel"
+                           asp-action="Index">
+                            <i class="bi bi-list-ul"></i>
+                            <p>
+                                @localize["Grade_Level"]
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(
+                            controller?.ToString() == "DonateSettings"
+                            ? "active" : "")" asp-controller="DonateSettings"
+                           asp-action="Index">
+                            <i class="bi bi-list-ul"></i>
+                            <p>
+                                @localize["Donate_Settings"]
+                            </p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-white" asp-area="Identity" asp-controller="Account" asp-action="Logout">
+                    <i class="nav-icon bi bi-door-open"></i>
+                    <p>
+                        @localize["Logout"]
+                    </p>
+                </a>
+            </li>
+        }
+    </ul>
+</nav>

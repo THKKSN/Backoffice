@@ -1,0 +1,483 @@
+@model BackOfficeLibrary.DashboardViewModel
+@using System.Globalization;
+
+@{
+    var _cultureEN = new CultureInfo("th-TH");
+    var currentYear = DateTime.Now.AddYears(543).Year.ToString();
+}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8 col-12">
+                <h3>
+                    @localize["Dashboard"]
+                </h3>
+            </div>
+            <div class="col-lg-2 col-12 d-flex align-items-center justify-content-end">
+                <label>
+                    @localize["Year"]
+                </label>
+            </div>
+            <div class="col-lg-2 col-12 text-start">
+                <div class="form-group">
+                    <select id="schoolYearSelect" class="form-control select2">
+                        <option value="">@localize["Select"]</option>
+
+                        @foreach (var sy in Model.SchoolYears)
+                        {
+                            <option value="@sy.Value" selected="@(currentYear == sy.Text)">@sy.Text</option>
+
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-10 col-12"></div>
+            <div class="col-lg-2 col-12 text-end">
+                <button id="exportExcelBtn" class="btn btn-success px-3 py-2 w-100 w-lg-auto mb-2">
+                    <i class="bi bi-box-arrow-right"></i> Export Excel
+                </button>
+                <button id="exportSheetBtn" class="btn btn-outline-success px-3 py-2 w-100 w-lg-auto d-none">
+                    <i class="bi bi-cloud-upload"></i> Export Google Sheet
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div id="annual-summary-container">
+            <div class="container-fluid">
+                <div id="annualSummaryWrapper" class="position-relative">
+                    <div id="annualSummaryLoading" class="dashboard-loading d-none">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary mb-2"></div>
+                            <div class="fw-semibold">@localize["Loading"] ...</div>
+                        </div>
+                    </div>
+
+                    <div class="row dashboard-grid">
+                        <div class="col-md-3 col-12 mb-3">
+                            <!-- รวมทั้งสิ้น -->
+                            <div class="card dashboard-card dashboard-primary">
+                                <div class="card-body">
+                                    <div class="dashboard-icon">
+                                        <i class="fas fa-wallet"></i>
+                                    </div>
+                                    <div>
+                                        <div class="dashboard-value" id="totalExpectedAmount">
+                                            0.00 @localize["Baht"]
+                                        </div>
+                                        <div class="dashboard-label">
+                                            @localize["TotalDonate"]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-12 mb-3">
+                            <!-- จำนวนผู้บริจาคทั้งหมด -->
+                            <div class="card dashboard-card dashboard-primary">
+                                <div class="card-body">
+                                    <div class="dashboard-icon">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <div>
+                                        <div class="dashboard-value" id="totalStudent">
+                                            0 คน
+                                        </div>
+                                        <div class="dashboard-label">
+                                            @localize["TotalStudent"]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-3 col-12 mb-3">
+                            <!-- เทอม 1 -->
+                            <div class="card dashboard-card dashboard-info">
+                                <div class="card-body">
+                                    <div class="dashboard-icon">
+                                        <i class="bi bi-1-circle-fill"></i>
+                                    </div>
+                                    <div>
+                                        <div class="dashboard-value" id="term1Donation">
+                                            0.00 @localize["Baht"]
+                                        </div>
+                                        <div class="dashboard-label">
+                                            @localize["TotalDonateTerm"] 1
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-12 mb-3">
+                            <!-- เทอม 2 -->
+                            <div class="card dashboard-card dashboard-info">
+                                <div class="card-body">
+                                    <div class="dashboard-icon">
+                                        <i class="bi bi-2-circle-fill"></i>
+                                    </div>
+                                    <div>
+                                        <div class="dashboard-value" id="term2Donation">
+                                            0.00 @localize["Baht"]
+                                        </div>
+                                        <div class="dashboard-label">
+                                            @localize["TotalDonateTerm"] 2
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row dashboard-grid">
+                        <div class="col-md-3 col-12 mb-3">
+                            <!-- บริจาคมาแล้ว -->
+                            <div class="card dashboard-card dashboard-success">
+                                <div class="card-body">
+                                    <div class="dashboard-icon">
+                                        <i class="bi bi-graph-up-arrow"></i>
+                                    </div>
+                                    <div>
+                                        <div class="dashboard-value" id="totalPaidAmount">
+                                            0.00 @localize["Baht"]
+                                        </div>
+                                        <div class="dashboard-label">
+                                            @localize["Donated"]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-12 mb-3">
+                            <!-- จำนวนผู้บริจาคมาแล้ว -->
+                            <div class="card dashboard-card dashboard-success">
+                                <div class="card-body">
+                                    <div class="dashboard-icon">
+                                        <i class="bi bi-person-fill-check"></i>
+                                    </div>
+                                    <div>
+                                        <div class="dashboard-value" id="totalPaidStudents">
+                                            0 คน
+                                        </div>
+                                        <div class="dashboard-label">
+                                            @localize["TotalStudentDonate"]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-12 mb-3">
+                            <!-- ยอดค้างชำระ -->
+                            <div class="card dashboard-card dashboard-danger">
+                                <div class="card-body">
+                                    <div class="dashboard-icon">
+                                        <i class="bi bi-graph-down-arrow"></i>
+                                    </div>
+                                    <div>
+                                        <div class="dashboard-value" id="totalUnpaidAmount">
+                                            0.00 @localize["Baht"]
+                                        </div>
+                                        <div class="dashboard-label">
+                                            @localize["TotalOutStanding"]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-12 mb-3">
+                            <!-- จำนวนรายชื่อผู้ยังไม่บริจาค -->
+                            <div class="card dashboard-card dashboard-danger">
+                                <div class="card-body">
+                                    <div class="dashboard-icon">
+                                        <i class="bi bi-person-fill-exclamation"></i>
+                                    </div>
+                                    <div>
+                                        <div class="dashboard-value" id="totalUnpaidStudents">
+                                            0 คน
+                                        </div>
+                                        <div class="dashboard-label">
+                                            @localize["TotalStudentNotDonate"]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div id="top-donate-container">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-lg-5">
+                                    <h5 class="mb-0">@localize["Top_Donate"]</h5>
+                                </div>
+                                <div class="col-lg-3 d-flex align-items-center justify-content-end">
+                                    <label class="text-end">@localize["Grade_Level"]</label>
+                                </div>
+                                <div class="col-lg-4">
+                                    <select id="topDonateSelect" class="form-control select2"
+                                        asp-items="@(new SelectList(ViewBag.gradeLevelsList, "Value", "Text"))">
+                                        <option value="">@localize["All_Grade_Level"]</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-lg-6 col-12 mb-2">
+                                </div>
+
+                                <div class="col-lg-6 col-12 mb-2 text-end">
+                                    <div class="d-flex flex-column flex-lg-row gap-2 justify-content-lg-end">
+
+                                        <div id="dtExcelPaidBtn" class="w-100 w-lg-auto"></div>
+
+                                        <button id="exportPiadToGoogleSheetBtn"
+                                            class="btn btn-outline-success px-3 py-2 w-100 w-lg-auto d-none">
+                                            <i class="bi bi-cloud-upload"></i> Export Google Sheet
+                                        </button>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div id="top-donate-result">
+                                @Html.Partial("_TopDonate")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div id="top-not-donate-container">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-lg-5">
+                                    <h5 class="mb-0">@localize["Top_NotDonate"]</h5>
+                                </div>
+                                <div class="col-lg-3 col-12 d-flex align-items-center justify-content-end">
+                                    <label class="text-end">@localize["Grade_Level"]</label>
+                                </div>
+                                <div class="col-lg-4">
+                                    <select id="topNotDonateSelect" class="form-control select2"
+                                        asp-items="@(new SelectList(ViewBag.gradeLevelsList, "Value", "Text"))">
+                                        <option value="">@localize["All_Grade_Level"]</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-lg-3 d-flex align-items-center">
+                                    <label class="text-end">@localize["ยอดบริจาคคงค้าง"]</label>
+                                </div>
+                                <div class="col-lg-3 mb-2">
+                                    <select id="remainingSelect" class="form-control select2"
+                                        onchange="LoadRemianingSelect()">
+                                        <option value="">@localize["Select_All"]</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-lg-6 col-12 mb-2 text-end">
+                                    <div class="d-flex flex-column flex-lg-row gap-2 justify-content-lg-end">
+
+                                        <div id="dtExcelBtn" class="w-100 w-lg-auto"></div>
+
+                                        <button id="exportToGoogleSheetBtn"
+                                            class="btn btn-outline-success px-3 py-2 w-100 w-lg-auto d-none">
+                                            <i class="bi bi-cloud-upload"></i> Export Google Sheet
+                                        </button>
+
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 text-center d-flex justify-content-center align-items-center">
+                                    <span id="totalSumLabel"> </span>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div id="top-not-donate-result">
+                                @Html.Partial("_TopNotDonate")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @* <div class="col-lg-6">
+                <div id="donut-dashboard-container"></div>
+            </div> *@
+
+            <div class="col-lg-6">
+                <div id="donut-dashboard-container">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-lg-5">
+                                    <h5 class="mb-0">@localize["Payment_GradeLevel"]</h5>
+                                </div>
+                                <div class="col-lg-3 d-flex align-items-center justify-content-end">
+                                    <label>@localize["Grade_Level"]</label>
+                                </div>
+                                <div class="col-lg-4">
+                                    <select id="gradeLevelSelect" class="form-control select2">
+                                        <option value="">@localize["All_Grade_Level"]</option>
+                                        @foreach (var g in ViewBag.gradeLevelsList)
+                                        {
+                                            <option value="@g.Value">@g.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div id="graph-dashboard-result">
+                                @Html.Partial("_DonutDashboard")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div id="graph-dashboard-container">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-lg-5">
+                                    <h5 class="mb-0">@localize["GraphDonateByRoom"]</h5>
+                                </div>
+                                <div class="col-lg-3 d-flex align-items-center justify-content-end">
+                                    <label class="text-end">@localize["Term"]</label>
+                                </div>
+                                <div class="col-lg-4">
+                                    <select id="graphRoomSelect" class="form-control select2">
+                                        <option value="">@localize["Select"]</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div id="graph-dashboard-result">
+                                @Html.Partial("_GraphRoom")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="Outstandings"></div>
+
+<div id="urlDefault" data-request-url="@Url.Action("", "Dashboard")"></div>
+@section Scripts {
+    <script>
+        
+        var roomChart;
+
+        const AppState = {
+            selectedYear: null,
+            remainingSelected: null,
+
+            baseUrl: $("#urlDefault").data("request-url"),
+
+            charts: {
+                room: null,
+                roomLabels: []
+            },
+
+            ajax: {
+                topDonate: null,
+                topNotDonate: null
+            }
+        };
+
+        const DT_URLS = {
+            ANNUALSUMMARY: '@Url.Action("AnnualSummary", "Dashboard")',
+            TOP_DONATE: '@Url.Action("TopDonate", "Dashboard")',
+            TOP_NOT_DONATE: '@Url.Action("TopNotDonate", "Dashboard")',
+            DONUT: '@Url.Action("DonutDashboard", "Dashboard")',
+            CHART: '@Url.Action("GetRoomLabels", "Dashboard")',
+            TERMBYYEAR: '@Url.Action("GetTermBySchoolYear", "Dashboard")',
+            GRAPHROOM: '@Url.Action("GraphRoomDashboard", "Dashboard")',
+
+            EXPORT: {
+                SHEET: '@Url.Action("ExportToSheet", "Dashboard")',
+                EXCEL: '@Url.Action("ExportToExcel", "Dashboard")',
+                TOP_NOT_DONATE: '@Url.Action("ExportTopNotDonateToSheet", "Dashboard")',
+                TOP_DONATE: '@Url.Action("ExportTopDonateToSheet", "Dashboard")'
+            }
+        };
+
+        $(function () {
+            $(".select2").each(function () {
+                $(this).select2({
+                    dropdownParent: $(this).parent(),
+                    width: "100%",
+                });
+            });
+        });
+
+        function loadAllDashboard() {
+            AppState.selectedYear = $("#schoolYearSelect").val();
+            loadAnnualSummary();
+            loadTermBySchoolYear(AppState.selectedYear);
+        }
+
+        $(document).ready(function () {
+            loadAllDashboard();
+            initTopDonateTable();
+            initTopNotDonateTable();
+            initRoomChart();
+            loadDonutDashboard();
+
+            $("#topNotDonateSelect").change(function () {
+                $('#topNotDonateTable').DataTable().ajax.reload(function () {
+                    $('#topNotDonateTable').DataTable().page(0).draw(false);
+                }, false);
+            });
+
+            $("#topDonateSelect").change(function () {
+                $('#topDonateTable').DataTable().ajax.reload(function () {
+                    $('#topDonateTable').DataTable().page(0).draw(false);
+                }, false);
+            });
+
+            $("#schoolYearSelect").change(function () {
+
+                $("#gradeLevelSelect").val(null).trigger("change");
+
+                loadAllDashboard();
+                loadDonutDashboard();
+
+                $('#topDonateTable').DataTable().ajax.reload(null, true);
+                $('#topNotDonateTable').DataTable().ajax.reload(null, true);
+            });
+
+            $("#gradeLevelSelect").change(function () {
+                loadDonutDashboard();
+            });
+        });
+    </script>
+    <script src="~/js/dashboard/_annualsummary.js" asp-append-version="true"></script>
+    <script src="~/js/dashboard/_notDonate.js" asp-append-version="true"></script>
+    <script src="~/js/dashboard/_topDonate.js" asp-append-version="true"></script>
+    <script src="~/js/dashboard/_donutChart.js" asp-append-version="true"></script>
+    <script src="~/js/dashboard/_roomChart.js" asp-append-version="true"></script>
+    <script src="~/js/dashboard/_export.js" asp-append-version="true"></script>
+    <script src="~/js/donate/_detail.js" asp-append-version="true"></script>
+}

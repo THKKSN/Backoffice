@@ -1,0 +1,117 @@
+@using System.Globalization;
+@model BackOfficeLibrary.DonateViewFromModel
+
+@{
+    var _cultureEN = new CultureInfo("th-TH");
+}
+
+
+    <div id="CreatDonateFrom" class="offcanvas offcanvas-info offcanvas-end mobile-offcanvas" tabindex="-1" aria-labelledby="CreatDonateFromLabel">
+
+    <div class="offcanvas-body">
+
+        <div class="row mb-3">
+            <div class="col-7">
+                <h4 id="DonateFromLabel" class="offcanvas-title">เพิ่มข้อมูลการบริจาค</h4>
+            </div>
+            <div class="col-5 text-end">
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+
+            <form id="DonateFrom" asp-controller="Donate" asp-action="Donate" method="post"
+                enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-lg-4 col-12">
+                        <label>@localize["Grade_Level"]</label>
+                        <select id="GradeLevel_Id" class="form-control select2" asp-for="GradeLevel_History_Id"
+                            asp-items="@(new SelectList(ViewBag.GrandLevelList, "Value", "Text"))"
+                            data-request-url-base="@Url.Action("", "Donate")">
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-4 col-12">
+                        <label>@localize["Student"]</label>
+                        <select id="Student_Id" class="form-control select2" asp-for="Student_Id"
+                            data-request-url-student="@Url.Action("GetStudentsByGrade", "Donate")">
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-4 col-12">
+                        <label>@localize["Year"]</label>
+                        <select id="SchoolYear_Id" class="form-control select2" asp-for="School_Year_Id"
+                            data-request-url-schoolyear="@Url.Action("GetSchoolYears", "Donate")">
+                            <option value="">@localize["Select"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="TermContainer"></div>
+                <div id="DonateContainer" style="display: none;">
+                    <!-- Name -->
+
+                    <div class="row mb-3">
+                        <div class="col-lg-6 col-12">
+                            <label class="form-label fw-semibold">ชื่อผู้บริจาค</label>
+                            <input asp-for="Donate_Name" class="form-control shadow-sm" placeholder="โปรดระบุ"
+                                required />
+                            <span asp-validation-for="Donate_Name" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Amount -->
+                        <div class="col-lg-6 col-12">
+                            <label class="form-label fw-semibold">ยอดที่ต้องการบริจาค</label>
+                            <input type="number" asp-for="DonateAmount" class="form-control shadow-sm" required />
+                            <span asp-validation-for="DonateAmount" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Date + Time -->
+                    <div class="row mb-3">
+                        <div class="col-lg-6 col-12">
+                            <label class="form-label fw-semibold">วันที่และเวลารับเงิน</label>
+                            <input type="datetime-local" class="form-control shadow-sm" asp-for="DonateDate" required />
+                        </div>
+                        <div class="col-lg-6 col-12">
+                            <label>คุณครูผู้รับเงิน</label>
+                            <select class="form-control select2" asp-for="Teacher_Id"
+                                asp-items="@(new SelectList(ViewBag.TeacherList, "Value", "Text"))" required>
+                                <option value="">@localize["Select"]</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    
+
+                    <input type="hidden" asp-for="DonateDate" />
+                    <div class="row mb-3">
+
+                        <!-- Evidence -->
+                        <div class="col-lg-6 col-12">
+                            <label class="form-label fw-semibold">หลักฐานการบริจาค</label>
+                            <input type="file" class="form-control shadow-sm" name="EvidenceFile" accept="image/*"
+                                onchange="previewImage(event)" />
+                            <div id="image-preview" class="mt-2"></div>
+                            <input type="hidden" id="ImageBase64" name="ImageBase64" />
+                            <input type="hidden" id="ImageExtension" name="ImageExtension" />
+                        </div>
+
+                    </div>
+                    <div class="offcanvas-footer border-top p-3 text-end">
+                        <button type="submit" id="btnDonateSubmit" class="btn btn-primary m-1">
+                            @localize["Save"]
+                        </button>
+                    </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="urlDefualt" data-request-url="@Url.Action("", "Donate")"></div>
+<div id="urlDonate" data-request-url="@Url.Action("Donate", "Donate")"></div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/js/donate/_donate.js" asp-append-version="true"></script>
+}

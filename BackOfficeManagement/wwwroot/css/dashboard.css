@@ -1,0 +1,200 @@
+body{
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont;
+}
+/* ===== Dashboard Card Base ===== */
+.dashboard-card {
+  position: relative;
+  border-radius: 20px;
+  /* border:none; */
+  background: linear-gradient(
+    180deg,
+    #ffffff,
+    #f8fafc
+  );
+  box-shadow:
+    0 10px 25px rgba(0,0,0,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.8);
+  overflow: hidden;
+  transition: all .35s cubic-bezier(.4,0,.2,1);
+  animation: cardEnter .55s ease both;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-8px);
+  box-shadow:
+    0 20px 45px rgba(0,0,0,0.12);
+}
+
+/* ===== Top Neon Accent ===== */
+.dashboard-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 5px;
+  border-radius: 0 0 12px 12px;
+}
+/* Hover motion */
+.dashboard-card:hover .dashboard-icon {
+  transform: scale(1.12) rotate(3deg);
+}
+/* Neon palette */
+.dashboard-primary::before {
+  background: linear-gradient(90deg, #4f8cff, #6ee7ff);
+}
+.dashboard-success::before {
+  background: linear-gradient(90deg, #34f5c5, #7cf9a4);
+}
+.dashboard-info::before {
+  background: linear-gradient(90deg, #38bdf8, #67e8f9);
+}
+.dashboard-danger::before {
+  background: linear-gradient(90deg, #ff6b6b, #ff9f9f);
+}
+
+/* ===== Layout ===== */
+.dashboard-card .card-body {
+  padding: 1.7rem;
+  display: flex;
+  align-items: center;
+  gap: 1.3rem;
+}
+
+/* ===== Icon ===== */
+.dashboard-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: rgba(255,255,255,.9);
+  /* box-shadow: 0 8px 20px rgba(0,0,0,.1); */
+  transition: transform .4s ease;
+}
+
+/* Glass glow */
+.dashboard-icon::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  border-radius: 20px;
+  /* background: radial-gradient(circle, rgba(0,0,0,.12), transparent 65%); */
+  z-index: -1;
+}
+
+/* Icon colors */
+.dashboard-primary .dashboard-icon { color: #4f8cff; }
+.dashboard-success .dashboard-icon { color: #10b981; }
+.dashboard-info .dashboard-icon { color: #0ea5e9; }
+.dashboard-danger .dashboard-icon { color: #ef4444; }
+
+/* ===== Value ===== */
+.dashboard-value {
+  font-weight: 800;
+  font-size: 1.3rem;
+  letter-spacing: -0.03em;
+  color: #020617;
+  line-height: 1.1;
+}
+
+/* ===== Label ===== */
+.dashboard-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* Hover motion */
+/* .dashboard-card:hover .dashboard-icon {
+  transform: scale(1.12) rotate(3deg);
+} */
+
+/* Entrance animation */
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Stagger */
+.dashboard-grid .col-md-3:nth-child(1) .dashboard-card { animation-delay: .05s }
+.dashboard-grid .col-md-3:nth-child(2) .dashboard-card { animation-delay: .1s }
+.dashboard-grid .col-md-3:nth-child(3) .dashboard-card { animation-delay: .15s }
+.dashboard-grid .col-md-3:nth-child(4) .dashboard-card { animation-delay: .2s }
+
+.dashboard-loading {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+.loading-dim {
+    opacity: 0.4;
+}
+
+/* =====================================
+   DASHBOARD CARD - DARK MODE
+===================================== */
+
+body.dark-mode .dashboard-card {
+    background: linear-gradient(
+        180deg,
+        #1e1e2d,
+        #151522
+    );
+    box-shadow:
+        0 12px 30px rgba(0,0,0,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+body.dark-mode .dashboard-card:hover {
+    box-shadow:
+        0 22px 50px rgba(0,0,0,0.75);
+}
+
+/* Icon container */
+body.dark-mode .dashboard-icon {
+    background: rgba(255,255,255,0.08);
+    box-shadow:
+        0 6px 18px rgba(0,0,0,0.5);
+}
+
+/* Value */
+body.dark-mode .dashboard-value {
+    color: #f8fafc;
+}
+
+/* Label */
+body.dark-mode .dashboard-label {
+    color: #94a3b8;
+}
+
+/* Loading overlay */
+body.dark-mode .dashboard-loading {
+    background: rgba(15, 15, 25, 0.75);
+    padding: 10px;
+}
+
+/* Neon accent tweak (เพิ่ม contrast บนพื้นมืด) */
+body.dark-mode .dashboard-primary::before {
+    background: linear-gradient(90deg, #6ea8ff, #8be9ff);
+}
+body.dark-mode .dashboard-success::before {
+    background: linear-gradient(90deg, #34f5c5, #7cf9a4);
+}
+body.dark-mode .dashboard-info::before {
+    background: linear-gradient(90deg, #5ddcff, #91f0ff);
+}
+body.dark-mode .dashboard-danger::before {
+    background: linear-gradient(90deg, #ff7b7b, #ffb4b4);
+}

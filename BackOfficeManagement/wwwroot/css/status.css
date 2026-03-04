@@ -1,0 +1,26 @@
+ /* เข้าใหม่ */
+.status-1 { 
+  background: rgb(232, 248, 245);
+  color: rgb(0, 168, 140);
+  border: 1px solid rgb(0, 168, 140);
+}
+/* กำลังศึกษาอยู่ */
+.status-2 {
+  background: rgb(230, 241, 255);
+  color: rgb(13, 110, 253);
+  border: 1px solid rgb(13, 110, 253);
+}
+
+/* จบการศึกษา */
+.status-3 {
+  background: rgb(235, 247, 240);
+  color: rgb(25, 135, 84);
+  border: 1px solid rgb(25, 135, 84);
+}
+
+/* ลาออก/ย้ายออก */
+.status-4 {
+  background: rgb(252, 236, 238);
+  color: rgb(220, 53, 69);
+  border: 1px solid rgb(220, 53, 69);
+}

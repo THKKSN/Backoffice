@@ -1,50 +1,170 @@
-﻿<!DOCTYPE html>
+﻿@using System.Globalization;
+@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<BackOfficeManagement.Data.ApplicationUser> signInManager;
+
+@inject IConfiguration Configuration
+
+@{
+    var ProjectTitle = Configuration["Default:Title"] ?? string.Empty;
+
+    var ProjectName = Configuration["Default:Name"] ?? string.Empty;
+
+    var ProjectCopyright = Configuration["Default:Copyright"] ?? string.Empty;
+
+    var ProjectDev = Configuration["Default:Dev"] ?? string.Empty;
+
+    var Version = Configuration["Default:Version"] ?? string.Empty;
+
+    var year = DateTime.Now.Year;
+
+    ViewData["ProjectTitle"] = ProjectTitle;
+    ViewData["ProjectLogo"] = "~/img/png/logo.ico";
+    ViewData["ProjectCopyright"] = ProjectCopyright;
+    ViewData["ProjectDev"] = ProjectDev;
+    ViewData["Version"] = Version;
+}
+
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BackOfficeManagement</title>
-    <script type="importmap"></script>
+    <title>@ViewData["ProjectTitle"]</title>
+
+    <link rel="icon" href="~/img/icon/Logo.ico" type="image/x-icon">
+    <link rel="icon" href="@(Url.Content(ViewData["ProjectLogo"].ToString()))" type="image/x-icon">
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="~/lib/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- overlayScrollbars -->
+    <link rel="stylesheet" href="~/lib/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="~/lib/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="~/lib/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <!-- daterange picker -->
+    <link rel="stylesheet" href="~/lib/plugins/daterangepicker/daterangepicker.css">
+    <!-- Tempusdominus Bbootstrap 4 -->
+    <link rel="stylesheet" href="~/lib/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="~/lib/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="~/lib/plugins/toastr/toastr.min.css">
+    <link rel="stylesheet" href="~/lib/plugins/jquery-ui/jquery-ui.css" />
+    <!-- DataTables -->
+    <link rel="stylesheet" href="~/lib/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/lib/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/lib/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/lib/dist/css/adminlte.min.css">
+    <link href="~/css/dashboard.css" rel="stylesheet" asp-append-version="true" />
+
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/status.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BackOfficeManagement.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Heads", required: false)
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">BackOfficeManagement</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+
+<body class="sidebar-mini layout-fixed layout-navbar-fixed sidebar-closed sidebar-closed-md">
+    <div class="wrapper">
+        @if (signInManager.IsSignedIn(User))
+        {
+            <!-- Navbar -->
+            <nav class="main-header navbar navbar-expand navbar-light border-0 shadow-sm">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" data-widget="pushmenu" href="#">
+                            <i class="fas fa-bars"></i>
+                        </a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <button class="btn btn-link nav-link" id="toggleDarkMode" title="Toggle theme">
+                            <i class="bi bi-moon-stars-fill"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Sidebar -->
+            <aside class="main-sidebar">
+                <div class="brand-link text-center"  style="background-color: #ffffff;">
+                    <span class="brand-text"></span>
                 </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+                <div class="sidebar" style="background-color: #1625ff;">
+                    <partial name="../Menu/_Menu.cshtml" />
+                </div>
+            </aside>
+        }
+
+        <!-- Content -->
+        <div class="content-wrapper">
+            <main class="content pt-3 pb-3">
+                @RenderBody()
+            </main>
+        </div>
+
+        @if (signInManager.IsSignedIn(User))
+        {
+            <footer class="main-footer text-sm">
+                <strong class="text-footer-detail-color" style="font-size: 14px;">
+                        Copyright &copy; @year</strong>
+                <a asp-controller="Donate" asp-action="Index">@ViewData["ProjectDev"]</a>
+                <span>All rights reserved.</span>
+
+                <div class="float-right d-none d-sm-inline-block">
+                    Version 1.0.3
+                </div>
+            </footer>
+        }
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2569 - BackOfficeManagement - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- DataTables Core -->
+    <script src="~/lib/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/lib/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+
+    <!-- DataTables Responsive -->
+    <script src="~/lib/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/lib/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+
+    <!-- DataTables Buttons -->
+    <script src="~/lib/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/lib/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/lib/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="~/lib/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="~/lib/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+    <script src="~/lib/plugins/jszip/jszip.min.js"></script>
+
+    <!-- DataTables Rowgroup -->
+    <script src="~/lib/plugins/datatables-rowgroup/js/dataTables.rowGroup.min.js"></script>
+    <script src="~/lib/plugins/datatables-rowgroup/js/rowGroup.bootstrap4.min.js"></script>
+
+
+    <script src="~/lib/plugins/moment/moment.min.js"></script>
+    <!-- Chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- Select2 -->
+    <script src="~/lib/plugins/select2/js/select2.full.min.js"></script>
+
+    <script src="~/lib/dist/js/adminlte.js"></script>
+    <!--OCR-->
+
+    @* <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script> *@
+
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

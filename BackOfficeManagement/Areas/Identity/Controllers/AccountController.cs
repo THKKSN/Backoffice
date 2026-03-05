@@ -65,17 +65,28 @@ namespace BackOfficeManagement.Areas.Identity.Controllers
             ApplicationUser? user;
 
             if (model.UserName.Contains("@"))
+            {
                 user = await _userManager.FindByEmailAsync(model.UserName);
+            }
             else
+            {
                 user = await _userManager.FindByNameAsync(model.UserName);
+            }
 
             if (user == null)
             {
-                ModelState.AddModelError("", "Invalid username or password.");
-                return View(model);
+                return View();
             }
 
             var result = await _signInManager.PasswordSignInAsync(user.UserName!, model.Password!, isPersistent: true, lockoutOnFailure: false);
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("User logged in.");
+                var url = _path + "/Home";
+
+                return LocalRedirect(url);
+            }
+
 
             if (result.Succeeded)
             {
